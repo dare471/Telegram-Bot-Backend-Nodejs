@@ -1,0 +1,6 @@
+.idea/
+package-lock.json
+node_modules/
+dist/pdf/
+/dist/uploads/
+/util/database.js
