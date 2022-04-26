@@ -149,8 +149,7 @@ exports.getAutoByGuid = async (id, guid) => {
                 "guid": res.data.GUID,
                 "prefics": res.data.prefics
             }
-            myTasks.setClientData(id, data)
-            global.auto_g = res.data.GUID  
+            myTasks.setClientData(id, data) 
             let name = res.data.Представление
             let message = stripHtml(res.data.description);
             message = message.replace(/[<>]/ig, "'");
@@ -181,15 +180,14 @@ exports.getOdometerAuto = async (msg) => {
             resize_keyboard: true
         }
     });
-    console.log(global.auto_g);
-    
+    console.log(myTasks.getClientData()[id]);
 }
 
 exports.setOdometAuto = async (msg) => {
     const {id} = msg.from;
     const number = msg.text;
     const json = {
-        "guid_auto": data.guid,
+        "guid_auto": myTasks.getClientData()[id].guid,
         "odometr": number,
         "id_telegram": id
       };

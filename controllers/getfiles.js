@@ -46,7 +46,6 @@ exports.getFiles = (msg, fileid) => {
         })
     })
 }
-
 exports.FileSends = (msg)=>{
     console.log(msg)
     const {id} = msg.from;
@@ -77,27 +76,16 @@ exports.FileSends = (msg)=>{
                     }
                 }
             ).then((res) => {
+                console.log(res)
                 bot.sendMessage(id, res.data.message+' 👍 Фотографии прикреплены ✅', {
                     reply_markup: {
                         resize_keyboard: true,
-                        keyboard: [ 
-                            ['Мои задачи'],
-                            ['Работа с клиентом'],
-                            ['Номенклатура и остатки'],
-                            ['Автопарк'],
-                            ['Поставить задачу'],
-                            ['Кадры и справки'],
-                            ['На главную'],
-                            ['Выйти из приложения']
-                            ]
+                        keyboard: menu
                     }
                 });
                 User.ListTruncate(id);
-                delete global.File;
             }).catch(error => {
                 console.log(error.response)
             });
-    })
-   
-    
+    }) 
 };

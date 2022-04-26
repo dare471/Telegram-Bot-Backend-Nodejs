@@ -13,16 +13,11 @@ bot.on('message', msg => {
     }else if(msg.video){
         fileid = msg.video.file_id;
     }else if(msg.photo){
-        var lastElement = msg.photo.pop();
-        
         bot.on("polling_error", console.log);
-
         // for(var i=1;i<msg.photo.length;i++)
         // {
         //     global.arr.push(msg.photo[i].file)
         // }
-     
-        
        // fileid=lastElement;
 
         if(msg.photo[2]){
