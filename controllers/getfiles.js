@@ -80,7 +80,9 @@ exports.FileSends = (msg)=>{
                 bot.sendMessage(id, res.data.message+' 👍 Фотографии прикреплены ✅', {
                     reply_markup: {
                         resize_keyboard: true,
-                        keyboard: menu
+                        keyboard: [
+                            ['На главную']
+                    ]
                     }
                 });
                 User.ListTruncate(id);

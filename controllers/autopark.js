@@ -172,7 +172,6 @@ exports.getAutoByGuid = async (id, guid) => {
 }
 
 exports.getOdometerAuto = async (msg) => {
-    bot.on("polling_error", console.log);
     const {id} = msg.from;
     myTasks.setUserType(id, 'setOdometAuto')
     bot.sendMessage(id, enterodometr, {
@@ -180,7 +179,6 @@ exports.getOdometerAuto = async (msg) => {
             resize_keyboard: true
         }
     });
-    console.log(myTasks.getClientData()[id]);
 }
 
 exports.setOdometAuto = async (msg) => {
@@ -191,7 +189,6 @@ exports.setOdometAuto = async (msg) => {
         "odometr": number,
         "id_telegram": id
       };
-    console.log(data.guid)
     await axios.post(`${config.ONE_C_URL}setOdometerAuto`, json,
         {
             headers: {
@@ -204,12 +201,18 @@ exports.setOdometAuto = async (msg) => {
         },
     ).then((res) => {
             console.log(res)
-            bot.sendMessage(id, 'Показания зафиксированы');
+            myTasks.setUserType(id, '')
+            bot.sendMessage(id, 'Показания зафиксированы', {
+                parse_mode: "HTML",
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: menu
+                }
+            });
             
         })
         .catch((e) => {
             console.log(e.message)
-           
         });
 }
 
