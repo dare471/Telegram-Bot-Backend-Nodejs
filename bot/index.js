@@ -386,11 +386,6 @@ bot.on('callback_query', (query) => {
     clientswork.getClientByGuid(query.message.chat.id, query.data)
     return false
   }
-  if (query.message.text === 'selectedDoc') {
-    console.log(query)
-    // nomenclature.opencardDocument(query.message.chat.id, query.data)
-    // return false
-  }
   if (query.message.text === 'Контакты') {
     bot.sendMessage(
       query.message.chat.id,
@@ -411,11 +406,11 @@ bot.on('callback_query', (query) => {
   } else if (query.message.text === messgeText) {
     getTasksController.getTaskByGuid(query.message.chat.id, query.data)
   } 
-  // else if (
-  //   myTasks.getTaskResult()[query.message.chat.id].includes(query.data)
-  // ) {
-  //   getTasksController.setTaskResults(query.message.chat.id, query.data)
-  // } 
+  else if (
+    myTasks.getTaskResult()[query.message.chat.id].includes(query.data)
+  ) {
+    getTasksController.setTaskResults(query.message.chat.id, query.data)
+  } 
   else if (query.data === 'getcard') {
     getTasksController.getPdfFile(
       query.message.chat.id,

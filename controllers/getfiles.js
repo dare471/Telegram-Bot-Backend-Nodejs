@@ -77,7 +77,7 @@ exports.FileSends = (msg)=>{
                     }
                 }
             ).then((res) => {
-                bot.sendMessage(id, res.data.message+' 👍 Фотографии прикреплены к задачи ✅', {
+                bot.sendMessage(id, res.data.message+' 👍 Фотографии прикреплены ✅', {
                     reply_markup: {
                         resize_keyboard: true,
                         keyboard: [ 

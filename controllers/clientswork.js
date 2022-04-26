@@ -185,6 +185,7 @@ exports.getContractByClient = async (msg, type) => {
 exports.getSverkaByClient = async (msg, type) => {
     const {id} = msg.from;
     let guid = myTasks.getUserType()[id]
+    console.log(myTasks.getUserType()[id])
     await axios.get(`${config.ONE_C_URL}getSverkaByClient`,
         {
             responseType: 'stream',
@@ -417,6 +418,7 @@ exports.getSellingByContract = async (msg) => {
 exports.getInvoiceByContract = async (msg) => {
     const {id} = msg.from;
     let guid = myTasks.getUserType()[id]
+    console.log(myTasks.getUserType())
     await axios.get(`${config.ONE_C_URL}getInvoiceByContract`,
         {
             responseType: 'stream',

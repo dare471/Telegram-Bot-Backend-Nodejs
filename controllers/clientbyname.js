@@ -8,7 +8,7 @@ const stripHtml = require("string-strip-html");
 const path = require('path');
 const exec = require('child_process').exec;
 const {namefile,clientmenu} = require('../controllers/menu');
-const {alertclientname,alertsymbols,choseclient,expectation,chosefile,filesend, filenotsendlater,alertdogclient,notdata,} = require('../controllers/getmessage')
+const {alertclientname,choseorder, alertsymbols,choseclient,expectation,chosefile,filesend, filenotsendlater,alertdogclient,notdata,} = require('../controllers/getmessage')
 
 exports.findClientByName = (msg) => {
     const {id} = msg.from;
@@ -203,6 +203,7 @@ exports.getContractByNumber = async (msg) => {
     }
 }
 exports.findSellingByNumber = (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     myTasks.setUserType(id, 'sellingtname')
     bot.sendMessage(id, enternumberreal, {

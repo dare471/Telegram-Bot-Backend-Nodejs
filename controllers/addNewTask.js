@@ -5,9 +5,10 @@ const axios = require('axios');
 const config = require('../util/config');
 const fs = require('fs');
 const {menu} = require("../controllers/menu");
-const { textmust, choseartist, themtask, descriptask, chosefile,deadltask,inputdate,sendapplication,send,cancel,errordate,sendtask,uauth } = require('./getmessage');
+const { textmust, enterallartist, chosegroup, notfound,choseartist, selectartisttype, themtask, descriptask, chosefile,deadltask,inputdate,sendapplication,send,cancel,errordate,sendtask,uauth } = require('./getmessage');
 
 exports.selectType = (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     myTasks.setNewTask(id, [])
     myTasks.setUserType(id, 'first')
@@ -24,6 +25,7 @@ exports.selectType = (msg) => {
     });
 }
 exports.selectedRole = (id) => {
+    bot.on("polling_error", console.log);
     myTasks.setUserType(id, 'role')
     bot.sendMessage(id, entergroupname, {
         reply_markup: {
@@ -33,7 +35,7 @@ exports.selectedRole = (id) => {
 }
 exports.selectedDocument = (guid) => {
     myTasks.setUserType(id, 'role')
-    
+    bot.on("polling_error", console.log);
     bot.sendMessage(id, selectartisttype, {
         reply_markup: {
             remove_keyboard: true
@@ -41,6 +43,7 @@ exports.selectedDocument = (guid) => {
     })
 }
 exports.selectedName = (id) => {
+    bot.on("polling_error", console.log);
     myTasks.setUserType(id, 'fio')
     bot.sendMessage(id, enterallartist, {
         reply_markup: {
@@ -49,6 +52,7 @@ exports.selectedName = (id) => {
     })
 }
 exports.findRole = (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     const text = msg.text;
     if (text.length > 2) {
@@ -79,6 +83,7 @@ exports.findRole = (msg) => {
 
 }
 exports.findName = (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     const text = msg.text;
     if (text.length > 2) {
@@ -108,11 +113,13 @@ exports.findName = (msg) => {
     }
 }
 exports.getTaskMessage = (id, guid) => {
+    bot.on("polling_error", console.log);
     myTasks.setNewTask(id, [guid])
     myTasks.setUserType(id, 'gettheme')
     bot.sendMessage(id, themtask)
 }
 exports.getDescription = (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     let ntxt = myTasks.getNewTask()[`${id}`]
     const theme = msg.text;
@@ -122,6 +129,7 @@ exports.getDescription = (msg) => {
     bot.sendMessage(id, descriptask)
 }
 exports.getFile = (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     const text = msg.text;
     let nt = myTasks.getNewTask()[`${id}`]
@@ -138,6 +146,7 @@ exports.getFile = (msg) => {
     })
 }
 exports.setDate = (id, path) => {
+    bot.on("polling_error", console.log);
     myTasks.setUserType(id, 'setdate')
     let ntxt = myTasks.getNewTask()[`${id}`]
     ntxt.push(path)
@@ -166,6 +175,7 @@ exports.setDate = (id, path) => {
         })
 }
 exports.customDate = (id) => {
+    bot.on("polling_error", console.log);
     myTasks.setUserType(id, 'newcustomdate')
     bot.sendMessage(id, inputdate, {
         reply_markup: {
@@ -174,6 +184,7 @@ exports.customDate = (id) => {
     })
 }
 exports.getCustomDate = (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     let sendeddate = msg.text.split('.')
     if(sendeddate.length === 4){
@@ -216,6 +227,7 @@ exports.getCustomDate = (msg) => {
     }
 }
 exports.isShure = (id, date) => {
+    bot.on("polling_error", console.log);
     let addtime = 0
     if (date === '1h') {
         addtime = (60 * 60 * 1000)
@@ -261,6 +273,7 @@ exports.isShure = (id, date) => {
 }
 
 exports.sendNewTask = (chat) => {
+    bot.on("polling_error", console.log);
     const {id} = chat
     let newtask = myTasks.getNewTask()[`${id}`]
     let guid = newtask[0].split('|')[1]
@@ -353,6 +366,7 @@ exports.sendNewTask = (chat) => {
     }
 }
 exports.notSendNewTask = (id) => {
+    bot.on("polling_error", console.log);
     myTasks.setNewTask(id, [])
     myTasks.setUserType(id, '')
     bot.sendMessage(id, uauth, {

@@ -8,6 +8,7 @@ const {menu, autopark, myauto, getoil} = require("../controllers/menu");
 const {expectation, choseaction, choseauto, chosetemplate,filesend, errordate, sendapplicationto, enterdate, enter,mustdate, entercontent, enterquanlitre, chosegsm, chosemaps, maps, enterodometr, chosenumber } = require('../controllers/getmessage');
 
 exports.mainQuery = msg => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     bot.sendMessage(id, choseaction, {
         reply_markup: {
@@ -18,6 +19,7 @@ exports.mainQuery = msg => {
     
 }
 exports.getMyAuto = async msg => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     await axios.get(`${config.ONE_C_URL}getMyAuto`,
         {
@@ -63,6 +65,7 @@ exports.getMyAuto = async msg => {
         })
 }
 exports.findAutoByNumber = msg => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     myTasks.setUserType(id, 'getAutoByNumber')
     bot.sendMessage(id, chosenumber, {
@@ -72,6 +75,7 @@ exports.findAutoByNumber = msg => {
     });
 }
 exports.getAutoByNumber = async (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     const number = msg.text
     await axios.get(`${config.ONE_C_URL}getAutoByNumber`,
@@ -122,6 +126,7 @@ exports.getAutoByNumber = async (msg) => {
         })
 }
 exports.getAutoByGuid = async (id, guid) => {
+    bot.on("polling_error", console.log);
     await axios.get(`${config.ONE_C_URL}getAutoByGuid`,
         {
             headers: {
@@ -168,6 +173,7 @@ exports.getAutoByGuid = async (id, guid) => {
 }
 
 exports.getOdometerAuto = async (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     myTasks.setUserType(id, 'setOdometAuto')
     bot.sendMessage(id, enterodometr, {
@@ -185,7 +191,7 @@ exports.setOdometAuto = async (msg) => {
     const json = {
         "guid_auto": data.guid,
         "odometr": number,
-        "id_telegram": msg.from.id
+        "id_telegram": id
       };
     console.log(data.guid)
     await axios.post(`${config.ONE_C_URL}setOdometerAuto`, json,
@@ -198,23 +204,19 @@ exports.setOdometAuto = async (msg) => {
                 password: config.ONE_C_AUTH_PASSWORD
             }
         },
-    )
-        .then((res) => {
-           
-            bot.sendMessage(id, res.data.message, {
-                reply_markup: {
-                    resize_keyboard: true,
-                    keyboard: myauto
-                }
-            })
+    ).then((res) => {
+            console.log(res)
+            bot.sendMessage(id, 'Показания зафиксированы');
+            
         })
         .catch((e) => {
             console.log(e.message)
-            bot.sendMessage(id, expectation)
-        })
+           
+        });
 }
 
 exports.getMyOilCard = async (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     await axios.get(`${config.ONE_C_URL}getMyOilCard`,
         {
@@ -267,6 +269,7 @@ exports.getMyOilCard = async (msg) => {
         })
 }
 exports.getTypeOil = async (id, guid) => {
+    bot.on("polling_error", console.log);
     await axios.get(`${config.ONE_C_URL}getTypeOil`,
         {
             headers: {
@@ -319,6 +322,7 @@ exports.getTypeOil = async (id, guid) => {
         })
 }
 exports.getOilCount = (id, guid) => {
+    bot.on("polling_error", console.log);
     let guid_oilCard = myTasks.getClientData()[id].guid_oilCard
     let data = {
         "guid_oilCard": guid_oilCard,
@@ -329,6 +333,7 @@ exports.getOilCount = (id, guid) => {
     bot.sendMessage(id, enterquanlitre)
 }
 exports.getDesc = msg => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     const oilcount = msg.text
     let guid_oilCard = myTasks.getClientData()[id].guid_oilCard
@@ -344,6 +349,7 @@ exports.getDesc = msg => {
 }
 
 exports.getOilDate = msg => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     const description = msg.text
     let guid_oilCard = myTasks.getClientData()[id].guid_oilCard
@@ -394,6 +400,7 @@ exports.getOilDate = msg => {
         })
 }
 exports.customDate = (id) => {
+    bot.on("polling_error", console.log);
     myTasks.setUserType(id, 'newcustomdateoil')
     bot.sendMessage(id, enterdate, {
         reply_markup: {
@@ -403,6 +410,7 @@ exports.customDate = (id) => {
 }
 
 exports.isShure = (id, date) => {
+    bot.on("polling_error", console.log);
     let guid_oilCard = myTasks.getClientData()[id].guid_oilCard
     let guid_typeOil = myTasks.getClientData()[id].guid_typeOil
     let count = myTasks.getClientData()[id].count
@@ -424,6 +432,7 @@ exports.isShure = (id, date) => {
     });
 }
 exports.getCustomDate = (msg) => {
+    bot.on("polling_error", console.log);
     const {id} = msg.from;
     let sendeddate = msg.text.split('.')
     if(sendeddate.length === 3){
