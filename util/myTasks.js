@@ -11,6 +11,7 @@ let ext = {}
 let clientdata = {}
 let allproducts = {}
 let counter = {}
+let FileData = {};
 let data = {}
 let description = {}
 
@@ -98,8 +99,12 @@ exports.getTasksData = () => {
     return taskdata
 };
 
-exports.getFileData = (array) => {
-    global.FileData = array; 
+exports.setFileData = (id, array) => {
+    FileData[id] = array; 
+};
+
+exports.getFileData = () => {
+    return FileData;
 };
 
 exports.setTaskWithGuid = (id, array) => {

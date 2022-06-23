@@ -5,8 +5,8 @@ const config = require('../util/config');
 const myTasks = require('../util/myTasks');
 const stripHtml = require("string-strip-html");
 const Path = require('path')
-const {clientmenu, findclient, getclientguid} = require('../controllers/menu');
-const {сhoosesearch,choseaction, continued,enterbin,choseclient,choseseason,notdata,choseorder,chosereal,expectation} = require('../controllers/getmessage')
+const {clientmenu,findclient,getclientguid,getcontract,getselling} = require('../controllers/menu');
+const {expectation,continued,сhoosesearch,choseaction,enterbin,choseclient,choseseason,notdata,choseorder,chosereal} = require('../controllers/getmessage')
 
 exports.startClientWork = (msg) => {
     const {id} = msg.from;

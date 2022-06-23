@@ -47,7 +47,7 @@ exports.getFiles = (msg, fileid) => {
     })
 }
 exports.FileSends = (msg)=>{
-    console.log(msg)
+    
     const {id} = msg.from;
     const filepath = []
     User.ListFileUser(id).then(([row]) => {
@@ -55,9 +55,10 @@ exports.FileSends = (msg)=>{
             filepath.push(row[i].file_name)
         }
         // console.log(global.FileData)
-        let prefics = global.FileData.prefics
-        let nameobject =  global.FileData.ИмяОбъекта
-        let guid = global.FileData.GUID
+        console.log(myTasks.getFileData())
+        let prefics = myTasks.getFileData()[id].prefics
+        let nameobject = myTasks.getFileData()[id].ИмяОбъекта
+        let guid = myTasks.getFileData()[id].GUID
             let params = {
                 "id_telegram": id,
                 "prefics": prefics,

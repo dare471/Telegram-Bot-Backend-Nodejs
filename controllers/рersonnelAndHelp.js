@@ -1,13 +1,16 @@
 const bot = require('../util/telegrambot').bots;
 const fs = require('fs');
+
 const axios = require('axios');
 const config = require('../util/config');
 const myTasks = require('../util/myTasks');
-const Path = require('path')
-const {menu, personnelandhelp} = require("../controllers/menu")
-const {selectdocument, expectation, continued} = require("../controllers/getmessage")
+const Path = require('path');
+const error = require('../controllers/error');
+const {menu,personnelandhelp} = require("../controllers/menu")
+const { selectdocument,expectation,continued} = require("../controllers/getmessage")
 
 exports.getWorkHelp = msg => {
+
     const {id} = msg.from;
     bot.sendMessage(id, selectdocument, {
         reply_markup: {
@@ -30,7 +33,7 @@ exports.getSumReport = async msg => {
         },
     )
     .then((res) => {
-        console.log(res);
+        error.errorsendgroups(res);
         bot.sendMessage(id, res.data.message, {parse_mode: 'HTML'}, {
             reply_markup: {
                 resize_keyboard: true,
@@ -59,7 +62,8 @@ exports.getVisit = async msg => {
         },
     )
     .then((res) => {
-        console.log(res);
+        error.errorsend(res);
+        
         bot.sendMessage(id, res.data, {parse_mode: 'HTML'}, {
             reply_markup: {
                 resize_keyboard: true,

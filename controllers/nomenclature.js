@@ -5,8 +5,9 @@ const config = require('../util/config');
 const myTasks = require('../util/myTasks');
 const stripHtml = require("string-strip-html");
 const Path = require('path')
-const {nomenclature, menu, nomeclatureget,nomeclaturegetproductby, nomeclaturegetwarehouse} = require("../controllers/menu")
-const { choseaction, mustbebysymbolsthree,selectdocument, expectation, enterfoursym, mustbebysymbolsfour, notdata, chosecategory, choseproduct, continuedtol, continued, chosewarehouse, chosefile, entertypecert, entercert } = require('../controllers/getmessage')
+const error = require('../controllers/error')
+const {menu, nomenclature,nomeclatureget,nomeclaturegetproductby,nomeclaturegetwarehouse,autopark} = require("../controllers/menu")
+const { expectation,continued,selectdocument,choseaction,notdata,enterfoursym,mustbebysymbolsthree,mustbebysymbolsfour,choseproduct,chosecategory,continuedtol,fwhatwarehouse,chosewarehouse,entertypecert,entercert} = require('../controllers/getmessage')
 
 //nomenclature
 exports.mainNomenclature = msg => {
@@ -49,29 +50,43 @@ exports.getShippingByNumber = async (msg) => {
         },
     )
         .then((res) => {
-            var resp = res.data.docs;
-            for (let i = 0; i < resp.length; i++) {
-                myTasks.getData(res.data.docs[0].description)
-                // myTasks.getClientData()[0]
-                myTasks.getFileData(res.data.docs[0])
-                bot.sendMessage(id, selectdocument, {
-                    reply_markup: {
-                        resize_keyboard: true,
-                        inline_keyboard: [
-                            [
-                                {
-                                    text: resp[i].Представление, callback_data: 'predstavlenie'
-                                }
+            if(res.data.docs){
+                var resp = res.data.docs;
+                for (let i = 0; i < resp.length; i++) {
+                    myTasks.getData(res.data.docs[0].description)
+                    // myTasks.getClientData()[0]
+                    myTasks.getFileData(res.data.docs[0])
+                    bot.sendMessage(id, selectdocument, {
+                        reply_markup: {
+                            resize_keyboard: true,
+                            inline_keyboard: [
+                                [
+                                    {
+                                        text: resp[i].Представление, callback_data: 'predstavlenie'
+                                    }
+                                ]
                             ]
-                        ]
-                    }
-                }); 
-                bot.on("polling_error", console.log);
-            }  
+                        }
+                    }); 
+                    error.errorsend(console.log)
+                }  
+            }
+            else{
+                bot.sendMessage(id, res.data.message, {reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: nomenclature
+                }});
+            }
+            
         })
         .catch((e) => {
-            console.log(e.message)
-            bot.sendMessage(id, expectation)
+            error.errorsend(console.log)
+            bot.sendMessage(id, res.data.message, {
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: nomenclature
+                }
+            });
         })
 }
 exports.findProductByName = msg => {
@@ -129,7 +144,7 @@ exports.getProductByName = async msg => {
                 }
             })
             .catch((e) => {
-                console.log(e.message)
+                error.errorsend(console.log)
                 bot.sendMessage(id, expectation)
             })
     }
@@ -177,7 +192,7 @@ exports.getCategory = async msg => {
             }
         })
         .catch((e) => {
-            console.log(e.message)
+            error.errorsend(console.log)
             bot.sendMessage(id, expectation)
         })
 }
@@ -223,6 +238,8 @@ exports.getProductByCategory1 = msg => {
                     ]
                 }
             })
+        }).catch((e) => {
+            error.errorsend(console.log)
         })
     }
 }
@@ -292,7 +309,7 @@ exports.getProductByCategory = async (id, guid) => {
             }
         })
         .catch((e) => {
-            console.log(e.message)
+            error.errorsend(e)
             bot.sendMessage(id, expectation)
         })
 }
@@ -318,6 +335,7 @@ exports.getProductByGuid = async (id, guid) => {
             let name = res.data.Представление
             let message = stripHtml(res.data.description);
             message = message.replace(/[<>]/ig, "'");
+            error.errorsend(message)
             let html = `
 <b>${name}</b>
 <pre>${message}</pre>
@@ -331,7 +349,7 @@ exports.getProductByGuid = async (id, guid) => {
             })
         })
         .catch((e) => {
-            console.log(e.message)
+            error.errorsend(console.log)
             bot.sendMessage(id, expectation)
         })
 }
@@ -393,7 +411,7 @@ exports.getStockByProduct = async msg => {
             })
         })
         .catch((e) => {
-            console.log(e.message)
+            error.errorsend(console.log)
             bot.sendMessage(id, expectation)
         })
 }
@@ -441,7 +459,7 @@ exports.getStocks = async msg => {
             }
         })
         .catch((e) => {
-            console.log(e.message)
+            error.errorsend(console.log)
             bot.sendMessage(id, expectation)
         })
 }
@@ -470,8 +488,7 @@ exports.getStockByProductAndStock = async (id, guid) => {
             )
             const writer = fs.createWriteStream(path)
             res.data.pipe(writer)
-            bot
-                .sendDocument(id, encodeURI(`${config.BASE_URL}pdf/Остатки товара ${guid_product}${guid}a.${res.headers.file_type}`))
+            bot.sendDocument(id, encodeURI(`${config.BASE_URL}pdf/Остатки товара ${guid_product}${guid}a.${res.headers.file_type}`))
                 .then(() => {
                     fs.unlink(`dist/pdf/Остатки товара ${guid_product}${guid}a.${res.headers.file_type}`, (err) => {
                         if (err && err.code == 'ENOENT') {
@@ -495,7 +512,7 @@ exports.getStockByProductAndStock = async (id, guid) => {
             })
         })
         .catch((e) => {
-            console.log(e.message)
+            error.errorsend(console.log)
             bot.sendMessage(id, expectation)
         })
 }
@@ -553,7 +570,7 @@ exports.getTypeCertByProduc = async msg => {
             }
         })
         .catch((e) => {
-            console.log(e.message)
+            error.errorsend(console.log)
             bot.sendMessage(id, expectation)
         })
 }
@@ -660,7 +677,7 @@ exports.getFilesCertByGUID = async (id, guid) => {
             })
         })
         .catch((e) => {
-            console.log(e.message)
+            error.errorsend(console.log)
             bot.sendMessage(id, expectation)
         })
 }

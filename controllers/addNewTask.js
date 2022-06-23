@@ -5,7 +5,7 @@ const axios = require('axios');
 const config = require('../util/config');
 const fs = require('fs');
 const {menu} = require("../controllers/menu");
-const { textmust, enterallartist, chosegroup, notfound,choseartist, selectartisttype, themtask, descriptask, chosefile,deadltask,inputdate,sendapplication,send,cancel,errordate,sendtask,uauth } = require('./getmessage');
+const { expectation,selectartisttype,entergroupname,enterallartist,chosegroup,notfound,textmust,themtask,descriptask,chosefile,deadltask,inputdate,sendapplication,send,cancel,errordate,sendtask,uauth} = require('./getmessage');
 
 exports.selectType = (msg) => {
     bot.on("polling_error", console.log);

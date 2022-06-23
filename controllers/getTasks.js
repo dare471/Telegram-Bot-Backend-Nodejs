@@ -7,7 +7,7 @@ const stripHtml = require('string-strip-html')
 const cb_data = []
 const fs = require('fs')
 const {gettask} = require('../controllers/menu');
-const { expectation, chosetask, notfoundtask, notfoundpoint, getcard, leavecomment } = require('./getmessage')
+const { expectation,chosetask,notfoundtask,notfoundpoint,succesonec,getcard,leavecomment} = require('./getmessage')
 
 exports.getTasks = (msg) => {
   const { id } = msg.from
@@ -142,7 +142,7 @@ exports.getTaskByGuid = (id, guid) => {
   cb_data.length = 0
   bot.sendMessage(id, 'Ожидание...')
   let alltasks = myTasks.GetTaskWithGuid()[id]
-  // console.log(alltasks);
+  console.log(alltasks);
   if (alltasks.length > 0) {
     for (i = 0; i < alltasks.length; i++) {
       if (alltasks[i].callback_data === guid) {
@@ -201,7 +201,7 @@ exports.getTaskByGuid = (id, guid) => {
                     variants[i].НомерВерсии
                   cb_data.push(variant)
                   btns.push({
-                    text: variants[i].ВариантИмя,
+                    text: variants[i].ВариантСиноним,
                     callback_data:
                       variants[i].ВариантСиноним +
                       '*' +
@@ -285,9 +285,7 @@ exports.getTaskByGuid = (id, guid) => {
 
 exports.getPdfFile = (id, data) => {
   let ext = myTasks.getExt()[id.toString()]
-  /*console.log(data.guid);
-    console.log(encodeURI(`${config.BASE_URL}pdf/${data.guid}.pdf`));*/
-  // bot.sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.pdf`)).then((res) => {
+   // bot.sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.pdf`)).then((res) => {
   bot
     .sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
     .then(() => {
@@ -323,7 +321,10 @@ exports.setTaskResults = (id, data, text = '') => {
       ВариантСиноним: cbd[1].split('*')[0],
       НомерВерсии: parseInt(cbd[3]),
     }
-  } else {
+  } else if(text === 'На главную'){
+    return;
+    }
+    else {
     taskData.task.taskResult = {
       Индекс: parseInt(cbd[2]),
       ВариантИмя: cbd[0],
@@ -345,7 +346,7 @@ exports.setTaskResults = (id, data, text = '') => {
         remove_keyboard: true,
       },
     })
-  } else {
+  } else{
     bot.sendMessage(id, expectation, {
       reply_markup: {
         resize_keyboard: true,

@@ -8,7 +8,7 @@ const stripHtml = require("string-strip-html");
 const path = require('path');
 const exec = require('child_process').exec;
 const {namefile,clientmenu} = require('../controllers/menu');
-const {alertclientname,choseorder, alertsymbols,choseclient,expectation,chosefile,filesend, filenotsendlater,alertdogclient,notdata,} = require('../controllers/getmessage')
+const {expectation,continued,choseclient,notdata,choseorder,chosereal,alertclientname,alertsymbols,chosefile,alertdogclient,mustsymbols,enternumberreal} = require('../controllers/getmessage')
 
 exports.findClientByName = (msg) => {
     const {id} = msg.from;

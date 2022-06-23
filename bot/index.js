@@ -11,7 +11,7 @@ const nomenclature = require('../controllers/nomenclature')
 const addNewTask = require('../controllers/addNewTask')
 const uploads = require('./uploads')
 const myTasks = require('../util/myTasks')
-const { chosefile } = require('../controllers/getmessage')
+const {chosefile} = require('../controllers/getmessage')
 let isContact = false
 let idUser = null
 let messgeText = ''
@@ -27,27 +27,11 @@ bot.on('message', (msg) => {
   }
   if (msg.text === '/start' || msg.text === '/main') {
     bot.sendMessage(id, `Приветствую, ${msg.from.first_name}`).then(() => {
-      // userController.setUser(msg)
-      bot.sendMessage(id, 'Выберите раздел в меню', {
-        reply_markup: {
-            resize_keyboard: true,
-            keyboard: [
-                ['Мои задачи'],
-                ['Работа с клиентом'],
-                ['Номенклатура и остатки'],
-                ['Автопарк'],
-                ['Поставить задачу'],
-                ['Кадры и справки'],
-                ['На главную'],
-                ['Выйти из приложения']
-            ]
-        }
-    });
+      userController.setUser(msg)
     })
     return false
   }
   if (msg.text === 'На главную') {
-    
     bot.sendMessage(id, 'Выберите раздел в меню', {
       reply_markup: {
           resize_keyboard: true,
@@ -188,7 +172,6 @@ bot.on('message', (msg) => {
   }else if (msg.text === 'Кадры и справки') {
     personelHelp.getWorkHelp(msg)
   }else if(msg.text === 'Подтвердить и закрепить файл/файлы'){
-    console.log(msg)
     getFile.FileSends(msg)
   }else if (msg.text === 'Ближайшие командировки') {
     personelHelp.getVisit(msg)
@@ -409,9 +392,11 @@ bot.on('callback_query', (query) => {
   else if (
     myTasks.getTaskResult()[query.message.chat.id].includes(query.data)
   ) {
+    console.log(myTasks.getTaskResult()[query.message.chat.id].includes(query.data))
     getTasksController.setTaskResults(query.message.chat.id, query.data)
   } 
   else if (query.data === 'getcard') {
+    console.log(myTasks.getTaskResult()[query.message.chat.id].includes(query.data))
     getTasksController.getPdfFile(
       query.message.chat.id,
       myTasks.getTasksData()[query.message.chat.id].task,

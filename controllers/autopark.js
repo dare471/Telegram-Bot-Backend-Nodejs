@@ -4,8 +4,8 @@ const axios = require('axios');
 const config = require('../util/config');
 const myTasks = require('../util/myTasks');
 const stripHtml = require("string-strip-html");
-const {menu, autopark, myauto, getoil} = require("../controllers/menu");
-const {expectation, choseaction, choseauto, chosetemplate,filesend, errordate, sendapplicationto, enterdate, enter,mustdate, entercontent, enterquanlitre, chosegsm, chosemaps, maps, enterodometr, chosenumber } = require('../controllers/getmessage');
+const {menu,autopark, myauto,getoil,isshure,aktauto} = require("../controllers/menu");
+const {expectation,choseaction,notdata,errordate,choseauto,chosenumber,enterodometr,maps,chosemaps,chosegsm,enterquanlitre,entercontent,mustdate,enter,enterdate,sendapplicationto,filesend,chosetemplate} = require('../controllers/getmessage');
 
 exports.mainQuery = msg => {
     bot.on("polling_error", console.log);
@@ -98,7 +98,7 @@ exports.getAutoByNumber = async (msg) => {
             let btns = []
 
             if (auto.length > 0) {
-                myTasks.getFileData(auto)
+                myTasks.setFileData(id, auto)
                 myTasks.setUserType(id, 'myauto')
 
                 for (let i = 0; i < auto.length; i++) {
@@ -122,7 +122,7 @@ exports.getAutoByNumber = async (msg) => {
         })
         .catch((e) => {
             console.log(e.message)
-            bot.sendMessage(id, expectation)
+            bot.sendMessage(id, e.message)
         })
 }
 exports.getAutoByGuid = async (id, guid) => {
@@ -143,7 +143,8 @@ exports.getAutoByGuid = async (id, guid) => {
         }
     )
         .then((res) => {
-            myTasks.getFileData(res.data)
+            myTasks.setFileData(id,res.data)
+         
             data = {
                 "nameObject": res.data.ИмяОбъекта,
                 "guid": res.data.GUID,
@@ -235,6 +236,8 @@ exports.getMyOilCard = async (msg) => {
     )
         .then((res) => {
             let myoilcard = res.data.MyOilCard
+            console.log(res.data.MyOilCard)
+            console.log(myoilcard)
             let btns = []
             if (myoilcard.length > 0) {
                 myTasks.setUserType(id, 'myoilcard')
@@ -270,6 +273,7 @@ exports.getMyOilCard = async (msg) => {
         })
 }
 exports.getTypeOil = async (id, guid) => {
+
     bot.on("polling_error", console.log);
     await axios.get(`${config.ONE_C_URL}getTypeOil`,
         {
@@ -480,6 +484,7 @@ exports.setNeedOil = async (msg) => {
         "due": oildate,
         "id_telegram": id
     }
+    console.log(data)
     await axios.post(`${config.ONE_C_URL}setNeedOil`, data,
         {
             headers: {
@@ -492,6 +497,7 @@ exports.setNeedOil = async (msg) => {
         }
     )
         .then((res) => {
+            console.log(res)
             myTasks.setClientData(id, null)
             myTasks.setUserType(id, 'oildate')
             bot.sendMessage(id, filesend, {

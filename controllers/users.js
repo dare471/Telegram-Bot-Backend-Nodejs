@@ -94,6 +94,7 @@ exports.setUser = (msg) => {
                                     }
                                 })
                                     .then(res => {
+                                        console.log(res)
                                         if(res.data.Result){
                                             User.setUserOnecname(text, id);
                                             bot.sendMessage(id, 'Проверочный код отправлен на Ваш email\nПосле получения нажмите "Подтвердить" и введите код', {
@@ -175,28 +176,21 @@ exports.setUser = (msg) => {
                             myTasks.setUserType(id, '')
                             myTasks.setAllproducts(id, '')
                             myTasks.setCounter(id, 0)
-                            // bot.sendMessage(id, 'Выберите раздел в меню', {
-                            //     reply_markup: {
-                            //         resize_keyboard: true,
-                            //         keyboard: [
-                            //             ['Мои задачи'],
-                            //             ['Работа с клиентом'],
-                            //             ['Номенклатура и остатки'],
-                            //             ['Автопарк'],
-                            //             ['Поставить задачу'],
-                            //             ['Кадры и справки'],
-                            //             ['На главную'],
-                            //             ['Выйти из приложения']
-                            //         ]
-                            //     }
-                            // });
-                        }
-                        else{
-                            if(rows[0].onec_name !== null && rows[0].checked === 0){
-                                checkuser.getCheck(msg)
-                            }else{
-                                bot.sendMessage(id, 'Unknown command')
-                            }
+                            bot.sendMessage(id, 'Выберите раздел в меню', {
+                                reply_markup: {
+                                    resize_keyboard: true,
+                                    keyboard: [
+                                        ['Мои задачи'],
+                                        ['Работа с клиентом'],
+                                        ['Номенклатура и остатки'],
+                                        ['Автопарк'],
+                                        ['Поставить задачу'],
+                                        ['Кадры и справки'],
+                                        ['На главную'],
+                                        ['Выйти из приложения']
+                                    ]
+                                }
+                            });
                         }
                 });
 

@@ -3,7 +3,7 @@ const bot = require('../util/telegrambot').bots;
 const axios = require('axios');
 const config = require('../util/config');
 const {checkuser} = require('../controllers/menu');
-const { entercode, entername, expectation, alertcode, errordata } = require('./getmessage');
+const { expectation,entercode,entername,alertcode,errordata } = require('./getmessage');
 
 exports.getCheck = (msg) => {
     const {id} = msg.from;
@@ -22,10 +22,12 @@ exports.deleteFio = (msg) => {
                 remove_keyboard: true
             }
         })
+        console.log(msg.from);
     });
 };
 exports.anotherCode = (msg) => {
     const {id} = msg.from;
+    console.log(id)
     User.getUserOnecname(id)
         .then(([rows]) => {
             async function checkFrom1c() {
