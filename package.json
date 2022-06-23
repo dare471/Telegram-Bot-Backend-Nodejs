@@ -1,0 +1,27 @@
+{
+  "name": "firsttb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js &"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "moment": "^2.29.3",
+    "mysql2": "^2.1.0",
+    "node-downloader-helper": "^1.0.12",
+    "node-telegram-bot-api": "^0.40.0",
+    "serve-static": "^1.14.1",
+    "string-strip-html": "^4.3.22"
+  },
+  "devDependencies": {
+    "concurrently": "^5.1.0",
+    "nodemon": "^2.0.3"
+  }
+}
