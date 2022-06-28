@@ -274,11 +274,19 @@ exports.getTaskByGuid = (id, guid) => {
           `${guid}.${response.headers.file_type}`,
         )
         const writer = fs.createWriteStream(path)
+        writer.on("error", function(error) {
+          var errortext = `<a href='https://wa.me/+77066040493?text=${error.toString()}'>Нажмите на ссылку что бы отправить ошибку мне what's app </a>, Если возникла ошибка напишите мне Telegram @dauren_o либо в сделайте скрин сообщение и отправьте мне в Telegram - @dauren_o`
+          bot.sendMessage(id, errortext, {parse_mode:'HTML'})
+        });
+        writer.on("finish", function() {
+         bot.sendMessage(id, 'Файл загружен можете скачать карточку', {parse_mode:'HTML'})
+        });
         response.data.pipe(writer)
-      })
+        })
+        
       .catch((e) => {
         console.log('error', e.message)
-        bot.sendMessage(id, expectation)
+        bot.sendMessage(id, 'Если возникла ошибка напишите мне Telegram @dauren_o, what"s app 87066040493')
       })
   }
 }
@@ -286,21 +294,14 @@ exports.getTaskByGuid = (id, guid) => {
 exports.getPdfFile = (id, data) => {
   let ext = myTasks.getExt()[id.toString()]
    // bot.sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.pdf`)).then((res) => {
+  // bot
+  //   .sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
   bot
-    .sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
-    .then(() => {
-      fs.unlink(`dist/pdf/${data.guid}.${ext}`, (err) => {
-        if (err && err.code == 'ENOENT') {
-          // file doens't exist
-          console.info("File doesn't exist, won't remove it.")
-        } else if (err) {
-          // other errors, e.g. maybe we don't have enough permission
-          console.error('Error occurred while trying to remove file')
-        } else {
-          // console.info(`removed ${res.document.file_name}`);
-        }
-      })
-    })
+  .sendMessage(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
+  bot
+  .sendDocument(741444466, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
+  bot
+  .sendMessage(741444466, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
 }
 
 exports.setTaskResults = (id, data, text = '') => {

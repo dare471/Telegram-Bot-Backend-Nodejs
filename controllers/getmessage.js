@@ -32,7 +32,7 @@ module.exports  =  {
   uauth:'Вы авторизованы', 
   choseauto:'Выбор авто',
   chosenumber:'Введите номер',
-  enterodometr:'Укажите км одометра',
+  enterodometr:'Выберите действие касательно раздела Одометр',
   maps:'Карты',
   chosemaps:'Выберите карту',
   chosegsm:'Выберите тип ГСМ',

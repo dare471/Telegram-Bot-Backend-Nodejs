@@ -12,6 +12,7 @@ let clientdata = {}
 let allproducts = {}
 let counter = {}
 let FileData = {};
+let OdometrSettings = {};
 let data = {}
 let description = {}
 
@@ -22,6 +23,14 @@ exports.setCounter = (id, type = null) => {
 exports.getCounter = () => {
     return counter
 };
+
+exports.setOdometrStr = (id, array) => {
+    OdometrSettings[id] = array; 
+}
+
+exports.getOdometrStr = () => {
+   return OdometrSettings; 
+}
 
 exports.setAllproducts = (id, type = null) => {
     allproducts[id] = type;

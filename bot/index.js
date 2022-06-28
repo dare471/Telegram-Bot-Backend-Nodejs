@@ -141,6 +141,10 @@ bot.on('message', (msg) => {
     autopark.setOdometAuto(msg)
     return false
   }
+  if (myTasks.getUserType()[id.toString()] === 'setOdometAutoPh' && msg.text !== '/start') {
+    clientbyname.autoFiles(msg) 
+    return false
+  }
 
   if (myTasks.getUserType()[id.toString()] === 'oilcount' && msg.text !== '/start') {
     autopark.getDesc(msg)
@@ -173,6 +177,10 @@ bot.on('message', (msg) => {
     personelHelp.getWorkHelp(msg)
   }else if(msg.text === 'Подтвердить и закрепить файл/файлы'){
     getFile.FileSends(msg)
+  }else if(msg.text === 'Прикрепить показания Одометра'){
+    autopark.setOdometrAutoStr(msg)
+  }else if(msg.text === 'Зафиксировать показания'){
+    clientbyname.autoFiles(msg) 
   }else if (msg.text === 'Ближайшие командировки') {
     personelHelp.getVisit(msg)
   }else if (msg.text === 'Узнать сумму в подотчете') {
@@ -223,7 +231,7 @@ bot.on('message', (msg) => {
     clientbyname.putFile(msg)
   }else if (msg.text === 'Мои авто') {
     autopark.getMyAuto(msg)
-  }else if (msg.text === 'Пропишите Одометр Авто') {
+  }else if (msg.text === 'Внести состояние ДС') {
     autopark.getOdometerAuto(msg)
   }else if (msg.text === 'Создать Заявку на ГСМ') {
     autopark.getMyOilCard(msg)
@@ -248,9 +256,11 @@ bot.on('message', (msg) => {
   }else if (msg.text === 'Сертификаты товара') {
     nomenclature.getTypeCertByProduc(msg)
   }else if (msg.text === 'Отправить') {
-    addNewTask.sendNewTask(msg.chat)
+    addNewTask.sendNewTask(msg.chat.id)
   }else if (msg.text === 'Отправить заявку') {
     autopark.setNeedOil(msg)
+  }else if(msg.text === 'Подтвердить загрузку файлов'){
+    clientbyname.acceptfiles(msg)
   }else if (msg.text === 'Отменить') {
     addNewTask.notSendNewTask(msg.chat.id)
   } else if (msg.text === 'Поставить задачу') {
