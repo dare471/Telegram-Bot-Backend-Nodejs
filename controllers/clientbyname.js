@@ -6,12 +6,13 @@ const config = require('../util/config');
 const myTasks = require('../util/myTasks');
 const stripHtml = require("string-strip-html");
 const path = require('path');
+const getfile = require('../controllers/getfiles')
 const exec = require('child_process').exec;
-const {namefile,clientmenu} = require('../controllers/menu');
-const {expectation,continued,choseclient,notdata,choseorder,chosereal,alertclientname,alertsymbols,chosefile,alertdogclient,mustsymbols,enternumberreal} = require('../controllers/getmessage')
+const { namefile, clientmenu } = require('../controllers/menu');
+const { expectation, continued, choseclient, notdata, choseorder, chosereal, alertclientname, alertsymbols, chosefile, alertdogclient, mustsymbols, enternumberreal } = require('../controllers/getmessage')
 
 exports.findClientByName = (msg) => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     myTasks.setUserType(id, 'clientname')
     bot.sendMessage(id, alertclientname, {
         reply_markup: {
@@ -22,7 +23,7 @@ exports.findClientByName = (msg) => {
 
 exports.getClientByName = async (msg) => {
     const name = msg.text
-    const {id} = msg.from;
+    const { id } = msg.from;
     if (name.length < 5) {
         bot.sendMessage(id, alertsymbols)
     } else {
@@ -47,7 +48,7 @@ exports.getClientByName = async (msg) => {
                 if (Array.isArray(clients) && clients.length > 0) {
                     let btns = []
                     for (let i = 0; i < clients.length; i++) {
-                        btns.push([{text: clients[i].Представление, callback_data: clients[i].GUID}])
+                        btns.push([{ text: clients[i].Представление, callback_data: clients[i].GUID }])
                     }
                     bot.sendMessage(id, choseclient, {
                         reply_markup: {
@@ -72,9 +73,69 @@ exports.getClientByName = async (msg) => {
     }
 
 }
+
+exports.autoFiles = (msg) => {
+    const { id } = msg.from;
+    console.log(myTasks.getOdometrStr()[id])
+    if(msg.photo){
+        bot.on("polling_error", console.log);
+        // for(var i=1;i<msg.photo.length;i++)
+        // {
+        //     global.arr.push(msg.photo[i].file)
+        // }
+       // fileid=lastElement;
+
+        if(msg.photo[2]){
+            fileid = msg.photo[2].file_id;
+        }
+        else if(msg.photo[1]){
+            fileid = msg.photo[1].file_id;
+        }
+        else{
+            fileid = msg.photo[0].file_id;
+        }
+    }
+    bot.downloadFile(fileid, './dist/uploads').then(file => {
+        let filename = +new Date() + '_AUTO_' + id.toString();
+        let filepath = path.join(__dirname, '../dist/uploads/' + file.split('/')[2])
+        let filedim = file.split('/')[2].split('.')[1]
+        let newfilepath = path.join(__dirname, '../dist/uploads/' + filename + '.' + filedim)
+        let newfilepath2 = path.join(__dirname, '../dist/uploads/' + filename + '.mp3')
+        fs.rename(filepath, newfilepath, () => {
+            if (filedim === 'oga') {
+                let dir = exec(`ffmpeg -i ${newfilepath} -c:a libmp3lame -q:a 2 ${newfilepath2}`, function (err, stdout, stderr) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+                dir.on('exit', function (code) {
+                    fs.unlink(`dist/uploads/${filename}.oga`, (err) => {
+                        if (err && err.code == 'ENOENT') {
+                            // file doens't exist
+                            console.info("File doesn't exist, won't remove it.")
+                        } else if (err) {
+                            // other errors, e.g. maybe we don't have enough permission
+                            console.error('Error occurred while trying to remove file')
+                        } else {
+                            // console.info(`removed ${res.document.file_name}`);
+                        }
+                    })
+                });
+                filedim = 'mp3'
+            }
+            User.FileUser(id, filename + '.' + filedim).then((e)=>{
+                console.log(e.message)
+            })
+        })
+    }).then(()=>{
+        let filename = +new Date() + '_AUTO_' + id.toString();
+        bot.sendMessage(id, 'Файл загружен - ' + filename )
+    })
+}
+
 exports.putFile = (msg) => {
     console.log(msg)
-    const {id} = msg.from;
+    const { id } = msg.from;
     myTasks.setUserType(id, 'putfile')
     bot.sendMessage(id, chosefile, {
         reply_markup: {
@@ -82,10 +143,11 @@ exports.putFile = (msg) => {
         }
     })
 }
+
 exports.putFiles = (msg) => {
-   const pid = msg.id
-   myTasks.setUserType(pid, 'putfile')
-   console.log(pid)
+    const pid = msg.id
+    myTasks.setUserType(pid, 'putfile')
+    console.log(pid)
     bot.sendMessage(pid, chosefile, {
         reply_markup: {
             remove_keyboard: true
@@ -93,21 +155,21 @@ exports.putFiles = (msg) => {
     })
 }
 exports.putFilesByGuid = (msg, fileid) => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     console.log(fileid)
     bot.getFile(fileid).then(obj => {
         bot.downloadFile(obj.file_id, './dist/uploads').then(file => {
             let filename = +new Date() + '_' + id.toString();
             let filepath = path.join(__dirname, '../dist/uploads/' + file.split('/')[2])
             let filedim = file.split('/')[2].split('.')[1]
-            let filenamee = filename+'.'+filedim;
+            let filenamee = filename + '.' + filedim;
             let newfilepath = path.join(__dirname, '../dist/uploads/' + filename + '.' + filedim)
             let newfilepath2 = path.join(__dirname, '../dist/uploads/' + filename + '.mp3')
             User.FileUser(id, filenamee)
             console.log(id, newfilepath)
-            fs.rename( filepath, newfilepath, () => {
-                if(filedim === 'oga'){
-                    let dir = exec(`ffmpeg -i ${newfilepath} -c:a libmp3lame -q:a 2 ${newfilepath2}`, function(err, stdout, stderr) {
+            fs.rename(filepath, newfilepath, () => {
+                if (filedim === 'oga') {
+                    let dir = exec(`ffmpeg -i ${newfilepath} -c:a libmp3lame -q:a 2 ${newfilepath2}`, function (err, stdout, stderr) {
                         if (err) {
                             console.log(err);
                         }
@@ -139,7 +201,7 @@ exports.putFilesByGuid = (msg, fileid) => {
     })
 };
 exports.findContractByNumber = (msg) => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     myTasks.setUserType(id, 'contractname')
     bot.sendMessage(id, alertdogclient, {
         reply_markup: {
@@ -150,7 +212,7 @@ exports.findContractByNumber = (msg) => {
 
 exports.getContractByNumber = async (msg) => {
     const number = msg.text
-    const {id} = msg.from;
+    const { id } = msg.from;
     if (number.length < 5) {
         bot.sendMessage(id, mustsymbols)
     } else {
@@ -204,7 +266,7 @@ exports.getContractByNumber = async (msg) => {
 }
 exports.findSellingByNumber = (msg) => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
+    const { id } = msg.from;
     myTasks.setUserType(id, 'sellingtname')
     bot.sendMessage(id, enternumberreal, {
         reply_markup: {
@@ -213,7 +275,7 @@ exports.findSellingByNumber = (msg) => {
     })
 }
 exports.getSellingByNumber = async (msg) => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     const number = msg.text
     await axios.get(`${config.ONE_C_URL}getSellingByNumber`,
         {
@@ -236,7 +298,7 @@ exports.getSellingByNumber = async (msg) => {
             let btns = []
             if (sell.length > 0) {
                 for (let i = 0; i < sell.length; i++) {
-                    btns.push([{text: sell[i].Представление, callback_data: sell[i].GUID}])
+                    btns.push([{ text: sell[i].Представление, callback_data: sell[i].GUID }])
                 }
                 bot.sendMessage(id, chosereal, {
                     reply_markup: {
@@ -261,7 +323,7 @@ exports.getSellingByNumber = async (msg) => {
 }
 const Path = require('path');
 exports.getFile = async (msg) => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     let clientdata = myTasks.getClientData()[id]
     let guid = myTasks.getClientData()[id].guid
     await axios.get(`${config.ONE_C_URL}get_file`,
