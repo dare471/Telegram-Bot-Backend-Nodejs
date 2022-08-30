@@ -32,12 +32,9 @@ exports.anotherCode = (msg) => {
         .then(([rows]) => {
             async function checkFrom1c() {
                 bot.sendMessage(id, expectation);
-                await axios.post(`${config.ONE_C_URL}sendCode`, {
-                    "user": {
-                        "fio": rows[0].onec_name,
-                        "id_telegram": id,
-                        "delete": false
-                    }
+                let command = `?command=sendCode&id_telegram=` + id
+                await axios.post(`${config.ONE_C_URL + command}`, {
+                        "fio": rows[0].onec_name                   
                 }, {
                     headers: {
                         'Content-Type': 'application/json'

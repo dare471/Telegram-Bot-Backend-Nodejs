@@ -6,9 +6,8 @@ const config = require('../util/config');
 const myTasks = require('../util/myTasks');
 const stripHtml = require("string-strip-html");
 const path = require('path');
-const getfile = require('../controllers/getfiles')
 const exec = require('child_process').exec;
-const { namefile, clientmenu } = require('../controllers/menu');
+const { namefile, sendphoto, clientmenu } = require('../controllers/menu');
 const { expectation, continued, choseclient, notdata, choseorder, chosereal, alertclientname, alertsymbols, chosefile, alertdogclient, mustsymbols, enternumberreal } = require('../controllers/getmessage')
 
 exports.findClientByName = (msg) => {
@@ -28,7 +27,10 @@ exports.getClientByName = async (msg) => {
         bot.sendMessage(id, alertsymbols)
     } else {
         myTasks.setUserType(id, 'getClientByName')
-        await axios.get(`${config.ONE_C_URL}getClientByName`,
+        let command = `?command=getClientByName&id_telegram=` + id
+        await axios.post(`${config.ONE_C_URL + command}`, {
+            name: name
+            },
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -36,10 +38,6 @@ exports.getClientByName = async (msg) => {
                 auth: {
                     username: config.ONE_C_AUTH_LOGIN,
                     password: config.ONE_C_AUTH_PASSWORD,
-                },
-                params: {
-                    id_telegram: id,
-                    name: name
                 }
             },
         )
@@ -48,7 +46,7 @@ exports.getClientByName = async (msg) => {
                 if (Array.isArray(clients) && clients.length > 0) {
                     let btns = []
                     for (let i = 0; i < clients.length; i++) {
-                        btns.push([{ text: clients[i].Представление, callback_data: clients[i].GUID }])
+                        btns.push([{ text: clients[i].Представление, callback_data: clients[i].guid }])
                     }
                     bot.sendMessage(id, choseclient, {
                         reply_markup: {
@@ -73,25 +71,18 @@ exports.getClientByName = async (msg) => {
     }
 
 }
-
 exports.autoFiles = (msg) => {
+    console.log(`autofiles`)
     const { id } = msg.from;
-    console.log(myTasks.getOdometrStr()[id])
-    if(msg.photo){
-        bot.on("polling_error", console.log);
-        // for(var i=1;i<msg.photo.length;i++)
-        // {
-        //     global.arr.push(msg.photo[i].file)
-        // }
-       // fileid=lastElement;
-
-        if(msg.photo[2]){
+ 
+    if (msg.photo) {
+        if (msg.photo[2]) {
             fileid = msg.photo[2].file_id;
         }
-        else if(msg.photo[1]){
+        else if (msg.photo[1]) {
             fileid = msg.photo[1].file_id;
         }
-        else{
+        else {
             fileid = msg.photo[0].file_id;
         }
     }
@@ -123,13 +114,10 @@ exports.autoFiles = (msg) => {
                 });
                 filedim = 'mp3'
             }
-            User.FileUser(id, filename + '.' + filedim).then((e)=>{
-                console.log(e.message)
-            })
+            User.FileUser(id, filename + '.' + filedim)
+            bot.sendMessage(id, `Files complete`)
+            myTasks.setUserType(id, `acceptfiles`)
         })
-    }).then(()=>{
-        let filename = +new Date() + '_AUTO_' + id.toString();
-        bot.sendMessage(id, 'Файл загружен - ' + filename )
     })
 }
 

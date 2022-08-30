@@ -34,7 +34,11 @@ exports.findShippingByNumber = async (msg) => {
 exports.getShippingByNumber = async (msg) => {
     const {id} = msg.from;
     const find = msg.text;
-    await axios.get(`${config.ONE_C_URL}getShippingByNumber`,
+    let command = `?command=getShippingByNumber&id_telegram=` + id
+    getShippingByNumber
+    await axios.post(`${config.ONE_C_URL + command}`, {
+        number: find
+        },
         {   
             headers: {
                 'Content-Type': 'application/json',
@@ -42,11 +46,7 @@ exports.getShippingByNumber = async (msg) => {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD
-            },
-            params: {
-                id_telegram: id, 
-                number: find
-            }
+            },    
         },
     )
         .then((res) => {
@@ -100,12 +100,15 @@ exports.findProductByName = msg => {
 }
 exports.getProductByName = async msg => {
     const name = msg.text
-    const {id} = msg.from;
+    const {id} = msg.from
+    let command = `?commmand=getProductByName&id_telegram=` + id
     if (name.length < 4) {
         bot.sendMessage(id, mustbebysymbolsfour)
     } else {
         myTasks.setUserType(id, 'getProductByName')
-        await axios.get(`${config.ONE_C_URL}getProductByName`,
+        await axios.post(`${config.ONE_C_URL + command}`,  {
+            name: name
+            },
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,10 +117,6 @@ exports.getProductByName = async msg => {
                     username: config.ONE_C_AUTH_LOGIN,
                     password: config.ONE_C_AUTH_PASSWORD,
                 },
-                params: {
-                    id_telegram: id,
-                    name: name
-                }
             },
         )
             .then((res) => {
@@ -151,8 +150,9 @@ exports.getProductByName = async msg => {
 }
 exports.getCategory = async msg => {
     const {id} = msg.from;
+    let command = `?command=getCategory&id_telegram=`+id
     myTasks.setUserType(id, 'getCategory')
-    await axios.get(`${config.ONE_C_URL}getCategory`,
+    await axios.post(`${config.ONE_C_URL + command}`,
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -161,9 +161,6 @@ exports.getCategory = async msg => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id
-            }
         },
     )
         .then((res) => {
@@ -244,7 +241,10 @@ exports.getProductByCategory1 = msg => {
     }
 }
 exports.getProductByCategory = async (id, guid) => {
-    await axios.get(`${config.ONE_C_URL}getProductByCategory`,
+    let command = `?command=getProductByCategory&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+            guid: guid
+        },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -252,11 +252,7 @@ exports.getProductByCategory = async (id, guid) => {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
+            }, 
         },
     )
         .then((res) => {
@@ -269,7 +265,7 @@ exports.getProductByCategory = async (id, guid) => {
                     myTasks.setCounter(id, count)
                     let btns = []
                     for (let i = 0; i < 20; i++) {
-                        btns.push([{text: product[i].Представление, callback_data: product[i].GUID}])
+                        btns.push([{text: product[i].Представление, callback_data: product[i].guid}])
                     }
                     product.splice(0, 20)
                     myTasks.setAllproducts(id, product)
@@ -290,7 +286,7 @@ exports.getProductByCategory = async (id, guid) => {
                     myTasks.setUserType(id, 'getProductByName')
                     let btns = []
                     for (let i = 0; i < product.length; i++) {
-                        btns.push([{text: product[i].Представление, callback_data: product[i].GUID}])
+                        btns.push([{text: product[i].Представление, callback_data: product[i].guid}])
                     }
                     bot.sendMessage(id, choseproduct, {
                         reply_markup: {
@@ -315,7 +311,10 @@ exports.getProductByCategory = async (id, guid) => {
 }
 exports.getProductByGuid = async (id, guid) => {
     console.log('getProductByGuid', id, guid)
-    await axios.get(`${config.ONE_C_URL}getProductByGuid`,
+    let command = `?command=getProductByGuid&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command }`,{
+            guid: guid
+        },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -324,10 +323,6 @@ exports.getProductByGuid = async (id, guid) => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
         },
     )
         .then((res) => {
@@ -365,17 +360,17 @@ exports.leftoverGoods = msg => {
 exports.getStockByProduct = async msg => {
     const {id} = msg.from;
     let guid = myTasks.getUserType()[id]
-    await axios.get(`${config.ONE_C_URL}getStockByProduct`,
+    let command = `?command=getStockByProduct&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`,{
+            guid: guid
+        },
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
+            
         },
     )
         .then((res) => {
@@ -417,7 +412,8 @@ exports.getStockByProduct = async msg => {
 }
 exports.getStocks = async msg => {
     const {id} = msg.from;
-    await axios.get(`${config.ONE_C_URL}getStocks`,
+    let command = `?command=getStocks&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`,
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -426,9 +422,6 @@ exports.getStocks = async msg => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id
-            }
         },
     )
         .then((res) => {
@@ -466,18 +459,18 @@ exports.getStocks = async msg => {
 exports.getStockByProductAndStock = async (id, guid) => {
     let guid_product = myTasks.getClientData()[id]
     console.log(guid_product, guid)
-    await axios.get(`${config.ONE_C_URL}getStockByProductAndStock`,
+    let command = `?command=getStockByProductAndStock&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`,{
+            guidProduct: guid_product,
+            guidStock: guid
+        },
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guidProduct: guid_product,
-                guidStock: guid
-            }
+            
         },
     )
         .then((res) => {
@@ -518,8 +511,11 @@ exports.getStockByProductAndStock = async (id, guid) => {
 }
 exports.getTypeCertByProduc = async msg => {
     const {id} = msg.from;
+    let commmand = `?command=getTypeCertByProduct&id_telegram=` + id
     let guid = myTasks.getUserType()[id]
-    await axios.get(`${config.ONE_C_URL}getTypeCertByProduct`,
+    await axios.post(`${config.ONE_C_URL + command}`,  {
+            guid: guid
+        },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -528,10 +524,6 @@ exports.getTypeCertByProduc = async msg => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
         },
     )
         .then((res) => {
@@ -577,11 +569,11 @@ exports.getTypeCertByProduc = async msg => {
 exports.getCertByProduct = async (id, type) => {
     let guid = myTasks.getClientData()[id]
     let data = {
-        id_telegram: id,
         guid: guid,
         type: type
     }
-    await axios.post(`${config.ONE_C_URL}getCertByProduct`, data,
+    let command = `?command=getCertByProduct&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, data,
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -598,7 +590,7 @@ exports.getCertByProduct = async (id, type) => {
                 myTasks.setUserType(id, 'getFilesCertByGUID')
                 let btns = []
                 for (let i = 0; i < cert.length; i++) {
-                    btns.push([{text: cert[i].Представление, callback_data: cert[i].GUID}])
+                    btns.push([{text: cert[i].Представление, callback_data: cert[i].guid}])
                 }
                 bot.sendMessage(id, entercert, {
                     reply_markup: {
@@ -631,17 +623,16 @@ exports.getCertByProduct = async (id, type) => {
         })
 }
 exports.getFilesCertByGUID = async (id, guid) => {
-    await axios.get(`${config.ONE_C_URL}getFilesCertByGUID`,
+    let command = `?command=getFilesCertByGUID&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+            guid: guid
+        },
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
         },
     )
         .then((res) => {
@@ -683,7 +674,10 @@ exports.getFilesCertByGUID = async (id, guid) => {
 }
 exports.getStockAll = async msg => {
     const {id} = msg.from;
-    await axios.get(`${config.ONE_C_URL}getStocks`,
+    let command = `?command=getStocks&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`,{
+            id_telegram: id
+        },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -692,9 +686,6 @@ exports.getStockAll = async msg => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id
-            }
         },
     )
         .then((res) => {
@@ -703,7 +694,7 @@ exports.getStockAll = async msg => {
                 myTasks.setUserType(id, 'getStocksAll')
                 let btns = []
                 for (let i = 0; i < stocks.length; i++) {
-                    btns.push([{text: stocks[i].Представление, callback_data: stocks[i].GUID}])
+                    btns.push([{text: stocks[i].Представление, callback_data: stocks[i].guid}])
                 }
                 bot.sendMessage(id, chosewarehouse, {
                     reply_markup: {
@@ -729,17 +720,16 @@ exports.getStockAll = async msg => {
         })
 }
 exports.getStockByStock = async (id, guid) => {
-    await axios.get(`${config.ONE_C_URL}getStockByStock`,
+    let command = `?command=getStockByStock&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+            guid: guid
+        },
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
         },
     )
         .then((res) => {

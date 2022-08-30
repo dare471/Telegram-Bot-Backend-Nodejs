@@ -1,5 +1,5 @@
 module.exports  =  {
-  "selectdocument":'Выберите документ',
+  selectdocument:'Выберите документ',
   expectation:'Ожидание...',
   continued:'Продолжить',
   сhoosesearch:'Выберите вариант поиска',

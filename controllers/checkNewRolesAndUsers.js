@@ -10,7 +10,9 @@ let USERSFORSTRING = 0
 let USERSFORSTRINGDB = ''
 
 const getRoleAndUsers = async() => {
-    await axios.get(`${config.ONE_C_URL}getUserAndGroup`, {
+    let { id } = msg.from
+    let command = `?command=getUserAndGroup&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
         headers: {
             'Content-Type': 'application/json'
         },
@@ -26,10 +28,10 @@ const getRoleAndUsers = async() => {
             let arrRole = []
             let arrUsr = []
             for (let i = 0; i < ROLE.length; i++){
-                arrRole.push({"showing":ROLE[i].Представление, "guid":ROLE[i].GUID, "objectname":ROLE[i].ИмяОбъекта, "objecttype":ROLE[i].ТипОбъекта, "prefics":ROLE[i].prefics});
+                arrRole.push({"showing":ROLE[i].Представление, "guid":ROLE[i].guid, "objectname":ROLE[i].ИмяОбъекта, "objecttype":ROLE[i].ТипОбъекта, "prefics":ROLE[i].prefics});
             }
             for (let i = 0; i < USERS.length; i++){
-                arrUsr.push({"showing":USERS[i].Представление, "guid":USERS[i].GUID, "objectname":USERS[i].ИмяОбъекта, "objecttype":USERS[i].ТипОбъекта, "prefics":USERS[i].prefics});
+                arrUsr.push({"showing":USERS[i].Представление, "guid":USERS[i].guid, "objectname":USERS[i].ИмяОбъекта, "objecttype":USERS[i].ТипОбъекта, "prefics":USERS[i].prefics});
             }
             ROLEFORSTRING = JSON.stringify(arrRole).length;
             USERSFORSTRING = JSON.stringify(arrUsr).length;

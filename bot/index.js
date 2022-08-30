@@ -12,6 +12,8 @@ const addNewTask = require('../controllers/addNewTask')
 const uploads = require('./uploads')
 const myTasks = require('../util/myTasks')
 const {chosefile} = require('../controllers/getmessage')
+const { personnelandhelp } = require('../controllers/menu')
+//const params = require('../util/parametrs')
 let isContact = false
 let idUser = null
 let messgeText = ''
@@ -60,6 +62,18 @@ bot.on('message', (msg) => {
     msg.text !== '/start'
   ) {
     addNewTask.findRole(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'GetYearsWorker' && msg.text !== '/start') {
+    personelHelp.setMoney(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'GetMoneyWorker' && msg.text !== '/start') {
+    personelHelp.setComment(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'GetCommentworker' && msg.text !== '/start') {
+    personelHelp.sendGetMoney(msg)
     return false
   }
   if (myTasks.getUserType()[id.toString()] === 'fio' && msg.text !== '/start') {
@@ -141,11 +155,18 @@ bot.on('message', (msg) => {
     autopark.setOdometAuto(msg)
     return false
   }
-  if (myTasks.getUserType()[id.toString()] === 'setOdometAutoPh' && msg.text !== '/start') {
+  if (myTasks.getUserType()[id.toString()] === 'setDocAuto' && msg.text !== '/start') {
+    autopark.setDocAuto(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'autoFiles' && msg.text !== '/start') {
     clientbyname.autoFiles(msg) 
     return false
   }
-
+  if (myTasks.getUserType()[id.toString()] === 'acceptfiles' && msg.text !== '/start') {
+    getFile.acceptfiles(msg) 
+    return false
+  }
   if (myTasks.getUserType()[id.toString()] === 'oilcount' && msg.text !== '/start') {
     autopark.getDesc(msg)
     return false
@@ -205,6 +226,8 @@ bot.on('message', (msg) => {
     clientbyname.findClientByName(msg)
   }else if (msg.text === 'Прикрепить файл') {
     clientbyname.putFile(msg)
+  }else if (msg.text === 'Send photo') {
+    clientbyname.autoFiles(msg)
   }else if (msg.text === 'Получить файл') {
     clientbyname.getFile(msg)
   }else if (msg.text === 'БИН/ИИН') {
@@ -259,8 +282,11 @@ bot.on('message', (msg) => {
     addNewTask.sendNewTask(msg.chat.id)
   }else if (msg.text === 'Отправить заявку') {
     autopark.setNeedOil(msg)
-  }else if(msg.text === 'Подтвердить загрузку файлов'){
-    clientbyname.acceptfiles(msg)
+  }else if (msg.text === 'Подать заявку на Аванс') {
+    personelHelp.setGetMoneyWorker(msg)
+  }else if(msg.text === 'Прикрепить фотографии'){
+    getFile.acceptfiles(msg);
+    console.log('Accept');
   }else if (msg.text === 'Отменить') {
     addNewTask.notSendNewTask(msg.chat.id)
   } else if (msg.text === 'Поставить задачу') {

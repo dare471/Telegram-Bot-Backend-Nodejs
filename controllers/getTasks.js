@@ -357,8 +357,9 @@ exports.setTaskResults = (id, data, text = '') => {
     Result()
   }
   async function Result() {
+    let command = `?command=setResultTask&id_telegram=`+ id
     await axios
-      .post(`${config.ONE_C_URL}setResultTask`, taskData, {
+      .post(`${config.ONE_C_URL + command}`, taskData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -370,14 +371,13 @@ exports.setTaskResults = (id, data, text = '') => {
       .then((res) => {
         bot.sendMessage(id, res.data.message)
         async function gettask(id, task_type, text) {
+          let command = `?command=getTasksByType&id_telegram=` + id
           await axios
             .post(
-              `${config.ONE_C_URL}getTasksByType`,
+              `${config.ONE_C_URL + command}`,
               {
-                user: {
-                  id_telegram: id,
+              
                   task_type: task_type,
-                },
               },
               {
                 headers: {

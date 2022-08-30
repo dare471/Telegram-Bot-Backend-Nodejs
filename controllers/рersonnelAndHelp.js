@@ -1,6 +1,5 @@
 const bot = require('../util/telegrambot').bots;
 const fs = require('fs');
-
 const axios = require('axios');
 const config = require('../util/config');
 const myTasks = require('../util/myTasks');
@@ -10,7 +9,6 @@ const {menu,personnelandhelp} = require("../controllers/menu")
 const { selectdocument,expectation,continued} = require("../controllers/getmessage")
 
 exports.getWorkHelp = msg => {
-
     const {id} = msg.from;
     bot.sendMessage(id, selectdocument, {
         reply_markup: {
@@ -19,21 +17,93 @@ exports.getWorkHelp = msg => {
         }
     });
 }
-exports.getSumReport = async msg => {
-    const {id} = msg.from;
-    await axios.get(`${config.ONE_C_URL}getSumReport`,
+exports.setGetMoneyWorker = msg =>{
+    const { id } = msg.from;
+    console.log("SetDate" + id)
+    bot.on("polling_error", console.log);
+    myTasks.setUserType(id, 'GetYearsWorker')
+    bot.sendMessage(id, `Отправьте дату получение аванса в формате "ггггммдд"`, {
+        reply_markup: {
+            resize_keyboard: true
+        }
+    })
+}
+exports.setMoney = msg =>{
+    bot.on("polling_error", console.log);
+    const { id } = msg.from;
+    const { text } = msg
+    console.log(msg)
+    myTasks.setGetMoneyWorker(id, text)
+    myTasks.setUserType(id, 'GetMoneyWorker')
+    bot.sendMessage(id, `Отправьте сумму Аванса`, {
+        reply_markup: {
+            resize_keyboard: true,
+        }
+    })
+}
+
+exports.setComment = msg =>{
+    const { id } = msg.from;
+    const { text } = msg
+    myTasks.setGetSumMoneyWorker(id, text)
+    myTasks.setUserType(id, '');
+    myTasks.setUserType(id, 'GetCommentworker');
+    bot.sendMessage(id, `Отправьте комментарий к авансу`, {
+        reply_markup: {
+            resize_keyboard: true,
+        }
+    })
+}
+
+exports.sendGetMoney = async msg =>{
+    const { id } = msg.from;
+    const { text } = msg;
+    myTasks.setGetCommentMoneyWorker(id, text)
+    const command = `?command=setGetMoneyWorker&id_telegram=`+msg.from.id
+    await axios.post(`${config.ONE_C_URL + command}`,{  "date": myTasks.getMoneyWorker()[id.toString()],
+    "sum": myTasks.getGetSumMoneyWorker()[id.toString()],
+    "desc": myTasks.getGetCommentMoneyWorker()[id.toString()]  
+    },
         {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: msg.from.id
             }
-        },
+        }
     )
     .then((res) => {
-        error.errorsendgroups(res);
+        bot.sendMessage(id, res.data.message, {parse_mode: 'HTML'}, {
+            reply_markup: {
+                resize_keyboard: true,
+                keyboard: menu
+            }
+        })
+        myTasks.setUserType(id, '')
+        myTasks.setGetMoneyWorker(id, '')
+        myTasks.setGetSumMoneyWorker(id, '')
+        myTasks.getGetCommentMoneyWorker(id, '')
+    })
+    .catch((e) => {
+        console.log(e.message)
+        bot.sendMessage(id, expectation)
+    })
+}
+
+exports.getSumReport = async msg => {
+    const {id} = msg.from;
+    console.log(msg.from.id)
+    const command = `?command=getSumReport&id_telegram=`+msg.from.id
+    console.log(config.ONE_C_URL + command)
+    await axios.post(`${config.ONE_C_URL + command}`,{},
+        {
+            auth: {
+                username: config.ONE_C_AUTH_LOGIN,
+                password: config.ONE_C_AUTH_PASSWORD,
+            }
+        }
+    )
+    .then((res) => {
+        console.log(res)
         bot.sendMessage(id, res.data.message, {parse_mode: 'HTML'}, {
             reply_markup: {
                 resize_keyboard: true,
@@ -49,22 +119,20 @@ exports.getSumReport = async msg => {
 
 exports.getVisit = async msg => {
     const {id, first_name} = msg.from;
+    const command = `?command=getVisit&id_telegram=`+msg.from.id
     console.log(msg.from)
-    await axios.get(`${config.ONE_C_URL}getVisit`,
+    console.log(config.ONE_C_URL + command)
+    await axios.post(`${config.ONE_C_URL + command}`, {},
         {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id
             }
-        },
+        }
     )
     .then((res) => {
-        error.errorsend(res);
-        
-        bot.sendMessage(id, res.data, {parse_mode: 'HTML'}, {
+        console.log(res)
+        bot.sendMessage(id, res.data.info, {parse_mode: 'HTML'}, {
             reply_markup: {
                 resize_keyboard: true,
                 keyboard: menu
@@ -80,16 +148,14 @@ exports.getVisit = async msg => {
 exports.getVacation = async msg => {
     const {id, first_name} = msg.from;
     console.log(msg.from)
-    await axios.get(`${config.ONE_C_URL}getMyVacation`,
+    const command = `?command=getMyVacation&id_telegram=`+msg.from.id
+    await axios.post(`${config.ONE_C_URL + command}`, {},
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id
-            }
         },
     )
         .then((res) => {
@@ -121,15 +187,13 @@ exports.getVacation = async msg => {
 exports.getWorkDoc = async msg => {
     const {id, first_name} = msg.from;
     console.log(msg.from)
-    await axios.get(`${config.ONE_C_URL}getUserCertWork`,
+    const command = `?command=getUserCertWork&id_telegram=`+msg.from.id
+    await axios.post(`${config.ONE_C_URL + command}`, {},
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id
             }
         },
     )

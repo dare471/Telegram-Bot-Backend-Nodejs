@@ -47,25 +47,22 @@ exports.getFiles = (msg, fileid) => {
     })
 }
 exports.FileSendsForAuto = (msg) => {
-
+    console.log('FileSends')
     const { id } = msg.from;
     const filepath = []
     User.ListFileUser(id).then(([row]) => {
         for (var i = 0; i < row.length; i++) {
             filepath.push(row[i].file_name)
         }
-        // console.log(global.FileData)
-        console.log(myTasks.getFileData())
-        let prefics = myTasks.getFileData()[id].prefics
-        let nameobject = myTasks.getFileData()[id].ИмяОбъекта
-        let guid = myTasks.getFileData()[id].GUID
+        console.log(global.FileData)
+        let guid = myTasks.getFileData()[id].guid
         let params = {
-            "id_telegram": id,
             "odometr": number,
             "guid": guid,
             "files": filepath
         }
-        axios.post(`${config.ONE_C_URL}setOdometerAuto`, params,
+        let command = `?command=setOdometrAuto&id_telegram=`+ id
+        axios.post(`${config.ONE_C_URL + command}`, params,
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,7 +89,7 @@ exports.FileSendsForAuto = (msg) => {
     })
 };
 exports.FileSends = (msg) => {
-
+    
     const { id } = msg.from;
     const filepath = []
     User.ListFileUser(id).then(([row]) => {
@@ -100,15 +97,10 @@ exports.FileSends = (msg) => {
             filepath.push(row[i].file_name)
         }
         // console.log(global.FileData)
-        console.log(myTasks.getFileData())
-        let prefics = myTasks.getFileData()[id].prefics
-        let nameobject = myTasks.getFileData()[id].ИмяОбъекта
-        let guid = myTasks.getFileData()[id].GUID
+        console.log()
+        let guid = myTasks.getFileData()[id].guid
         let params = {
-            "id_telegram": id,
-            "prefics": prefics,
-            "nameObject": nameobject,
-            "guid": guid,
+            
             "files": filepath
         }
         axios.post(`${config.ONE_C_URL}putFilesByGuid`, params,
@@ -139,23 +131,23 @@ exports.FileSends = (msg) => {
 }
 
 exports.acceptfiles = (msg) => {
-    console.log(msg)
     let { id } = msg.from
-
     let filearr = []
-
+    let command = `?command=setDocOdometer&id_telegram=`+msg.from.id
+    console.log(User.ListFileUser(id))
     User.ListFileUser(id).then(([row]) => {
         for (var i = 0; i < row.length; i++) {
             filearr.push(row[i].file_name)
+            console.log(row[i].file_name)
         }
-        let odometr = myTasks.getOdometrStr()[id].odometr
-        let params = {
-            "id_telegram": id,
+        let odometr = myTasks.getOdometrStr()[id]
+        let guid = myTasks.getClientData()[id].guid
+        let obj = {
             "odometr": odometr,
-            "guid_auto": myTasks.getOdometrStr()[id].guid_auto,
+            "guid": guid,
             "files": filearr
         }
-        axios.post(`${config.ONE_C_URL}setDocOdometer`, params,
+        axios.post(`${config.ONE_C_URL + command}`, obj,
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -166,11 +158,19 @@ exports.acceptfiles = (msg) => {
                 }
             }
         ).then((res) => {
-            User.ListTruncate(id);
-            return
-            
+            console.log(res)
+            bot.sendMessage(id, res.data.message + ' 👍 Фотографии прикреплены ✅', {
+                reply_markup: {
+                    resize_keyboard: true,
+                    keyboard: [
+                        ['На главную']
+                    ]
+                }
+            });
+        
+        myTasks.setUserType(id, ``);
         }).catch(error => {
             console.log(error.response)
         });
-    })
+    });
 };

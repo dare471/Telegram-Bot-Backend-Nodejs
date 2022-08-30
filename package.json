@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js &"
@@ -18,7 +17,8 @@
     "node-downloader-helper": "^1.0.12",
     "node-telegram-bot-api": "^0.40.0",
     "serve-static": "^1.14.1",
-    "string-strip-html": "^4.3.22"
+    "string-strip-html": "^4.3.22",
+    "telegraf-calendar-telegram": "^2.0.2"
   },
   "devDependencies": {
     "concurrently": "^5.1.0",

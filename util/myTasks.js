@@ -12,7 +12,10 @@ let clientdata = {}
 let allproducts = {}
 let counter = {}
 let FileData = {};
-let OdometrSettings = {};
+let OdometrSettings = {}
+let GetMoneyWorker = {}
+let getGetSumMoneyWorker = {}
+let getGetCommentMoneyWorker = {}
 let data = {}
 let description = {}
 
@@ -24,9 +27,33 @@ exports.getCounter = () => {
     return counter
 };
 
+exports.setGetMoneyWorker = (id, type = null) => {
+    GetMoneyWorker[id] = type;
+}
+
+exports.getMoneyWorker = () => {
+    return GetMoneyWorker;
+}
+
+exports.setGetSumMoneyWorker = (id, type = null) => {
+    getGetSumMoneyWorker[id] = type;
+}
+
+exports.getGetSumMoneyWorker = () => {
+   return getGetSumMoneyWorker;
+}
+
+exports.setGetCommentMoneyWorker = (id, type = null) => {
+    getGetCommentMoneyWorker[id] = type;
+}
+
+exports.getGetCommentMoneyWorker = () => {
+   return getGetCommentMoneyWorker;
+}
+
 exports.setOdometrStr = (id, array) => {
     OdometrSettings[id] = array; 
-}
+};
 
 exports.getOdometrStr = () => {
    return OdometrSettings; 
