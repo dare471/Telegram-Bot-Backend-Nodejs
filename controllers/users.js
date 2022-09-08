@@ -24,12 +24,8 @@ exports.checkLogOut = (id, data) => {
     if(data === 'logout'){
         User.getUserOnecname(id)
             .then(async([rows]) => {
-                await axios.post(`${config.ONE_C_URL}logOut`, {
-                    "user": {
-                        "fio": rows[0].onec_name,
-                        "id_telegram": id
-                    }
-                },{
+                let command = '?command=logOut&id_telegram='+id;
+                await axios.post(`${config.ONE_C_URL}` + command, {
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -78,13 +74,11 @@ exports.setUser = (msg) => {
                         else if(rows[0].onec_name === null && rows[0].checked === 0){
                             async function checkFrom1c(text) {
                                 bot.sendMessage(id, 'Ожидайте...');
-                                await axios.post(`${config.ONE_C_URL}sendCode`, {
-                                    "user": {
+                                let command = '?command=sendCode&id_telegram='+id;
+                                await axios.post(`${config.ONE_C_URL}`+command, {
                                         "fio": text,
-                                        "id_telegram": id,
-                                        "delete": false
                                     }
-                                },{
+                                ,{
                                     headers: {
                                         'Content-Type': 'application/json'
                                     },
@@ -120,12 +114,10 @@ exports.setUser = (msg) => {
                         else if(rows[0].onec_name !== null && rows[0].checked === 1 && rows[0].registred === 0){
                             async function getCode(text) {
                                 bot.sendMessage(id, 'Ожидайте...');
-                                await axios.post(`${config.ONE_C_URL}verificationUser`, {
-                                    "user": {
+                                let command = '?command=verificationUser&id_telegram='+id;
+                                await axios.post(`${config.ONE_C_URL}`+command, {
                                         "fio": rows[0].onec_name,
-                                        "id_telegram": id,
                                         "code": `${text}`
-                                    }
                                 },{
                                     headers: {
                                         'Content-Type': 'application/json'

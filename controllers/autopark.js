@@ -4,24 +4,25 @@ const axios = require('axios');
 const config = require('../util/config');
 const myTasks = require('../util/myTasks');
 const stripHtml = require("string-strip-html");
-const {menu,autopark, myauto,getoil,isshure,aktauto} = require("../controllers/menu");
-const {expectation,choseaction,notdata,errordate,choseauto,chosenumber,enterodometr,maps,chosemaps,chosegsm,enterquanlitre,entercontent,mustdate,enter,enterdate,sendapplicationto,filesend,chosetemplate} = require('../controllers/getmessage');
+const { menu, autopark, odometraction, myauto, getoil, isshure, aktauto, odometractionPh } = require("../controllers/menu");
+const { expectation, choseaction, notdata, errordate, choseauto, chosenumber, enterodometr, maps, chosemaps, chosegsm, enterquanlitre, entercontent, mustdate, enter, enterdate, sendapplicationto, filesend, chosetemplate } = require('../controllers/getmessage');
 
 exports.mainQuery = msg => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
+    const { id } = msg.from;
     bot.sendMessage(id, choseaction, {
         reply_markup: {
             resize_keyboard: true,
             keyboard: autopark
         }
     });
-    
+
 }
 exports.getMyAuto = async msg => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
-    await axios.get(`${config.ONE_C_URL}getMyAuto`,
+    const { id } = msg.from;
+    const command = `?command=getMyAuto&id_telegram=` + msg.from.id
+    await axios.post(`${config.ONE_C_URL + command}`, {},
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -29,19 +30,17 @@ exports.getMyAuto = async msg => {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id
             }
         },
     )
         .then((res) => {
             myTasks.setUserType(id, 'myauto')
             let auto = res.data.Auto
+            myTasks.setFileData(id, auto)
             let btns = []
             if (auto.length > 0) {
                 for (let i = 0; i < auto.length; i++) {
-                    btns.push([{text: auto[i].Представление, callback_data: auto[i].GUID}])
+                    btns.push([{ text: auto[i].Представление, callback_data: auto[i].guid }])
                 }
                 bot.sendMessage(id, choseauto, {
                     reply_markup: {
@@ -66,7 +65,7 @@ exports.getMyAuto = async msg => {
 }
 exports.findAutoByNumber = msg => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
+    const { id } = msg.from;
     myTasks.setUserType(id, 'getAutoByNumber')
     bot.sendMessage(id, chosenumber, {
         reply_markup: {
@@ -76,9 +75,12 @@ exports.findAutoByNumber = msg => {
 }
 exports.getAutoByNumber = async (msg) => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
+    const { id } = msg.from;
     const number = msg.text
-    await axios.get(`${config.ONE_C_URL}getAutoByNumber`,
+    const command = `?command=getAutoByNumber&id_telegram=` + msg.from.id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+        number: number
+    },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -87,10 +89,7 @@ exports.getAutoByNumber = async (msg) => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                number: number
-            }
+
         },
     )
         .then((res) => {
@@ -98,11 +97,11 @@ exports.getAutoByNumber = async (msg) => {
             let btns = []
 
             if (auto.length > 0) {
-                myTasks.setFileData(id,auto)
+                myTasks.setFileData(id, auto)
                 myTasks.setUserType(id, 'myauto')
 
                 for (let i = 0; i < auto.length; i++) {
-                    btns.push([{text: auto[i].Представление, callback_data: auto[i].GUID}])
+                    btns.push([{ text: auto[i].Представление, callback_data: auto[i].guid }])
                 }
                 bot.sendMessage(id, choseauto, {
                     reply_markup: {
@@ -122,12 +121,16 @@ exports.getAutoByNumber = async (msg) => {
         })
         .catch((e) => {
             console.log(e.message)
-            bot.sendMessage(id, expectation)
+            bot.sendMessage(id, e.message)
         })
 }
 exports.getAutoByGuid = async (id, guid) => {
+    console.log(guid, id)
     bot.on("polling_error", console.log);
-    await axios.get(`${config.ONE_C_URL}getAutoByGuid`,
+    const command = `?command=getAutoByGuid&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+        guid: guid
+    },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -136,21 +139,16 @@ exports.getAutoByGuid = async (id, guid) => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
+
         }
     )
         .then((res) => {
-            myTasks.setFileData(id,res.data)
-         
+            console.log(res.data)
             data = {
-                "nameObject": res.data.ИмяОбъекта,
-                "guid": res.data.GUID,
+                "guid": res.data.guid,
                 "prefics": res.data.prefics
             }
-            myTasks.setClientData(id, data) 
+            myTasks.setClientData(id, data)
             let name = res.data.Представление
             let message = stripHtml(res.data.description);
             message = message.replace(/[<>]/ig, "'");
@@ -173,54 +171,50 @@ exports.getAutoByGuid = async (id, guid) => {
 }
 
 exports.getOdometerAuto = async (msg) => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     myTasks.setUserType(id, 'setOdometAuto')
-    bot.sendMessage(id, enterodometr, {
+    bot.sendMessage(id, 'Введите показатель Одометра 🚗', {
         reply_markup: {
-            resize_keyboard: true
+            remove_keyboard: true
         }
     });
 }
 
 exports.setOdometAuto = async (msg) => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     const number = msg.text;
-    const json = {
-        "guid_auto": myTasks.getClientData()[id].guid,
-        "odometr": number,
-        "id_telegram": id
-      };
-    await axios.post(`${config.ONE_C_URL}setOdometerAuto`, json,
+    myTasks.setOdometrStr(id, number);
+    myTasks.setUserType(id, 'setDocAuto')
+    console.log('setDocAuto')
+    bot.sendMessage(id, `Продолжаем вносит инф. про ТС?`, {
+        reply_markup: {
+            keyboard: [
+                ['Да, продолжаем'],
+                ['Отмена']
+            ],
+            resize_keyboard: true
+        }
+    })
+}
+
+exports.setDocAuto = async (msg) => {
+    const { id } = msg.from;
+    console.log("autofiles")
+    bot.sendMessage(id, 'Теперь можете отправить фотографии ТС, Одометра',
         {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            auth: {
-                username: config.ONE_C_AUTH_LOGIN,
-                password: config.ONE_C_AUTH_PASSWORD
+            reply_markup: {
+                remove_keyboard: true
             }
-        },
-    ).then((res) => {
-            console.log(res)
-            myTasks.setUserType(id, '')
-            bot.sendMessage(id, 'Показания зафиксированы', {
-                parse_mode: "HTML",
-                reply_markup: {
-                    resize_keyboard: true,
-                    keyboard: menu
-                }
-            });
-            
         })
-        .catch((e) => {
-            console.log(e.message)
-        });
+    myTasks.setUserType(id, `autoFiles`);
 }
 
 exports.getMyOilCard = async (msg) => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
-    await axios.get(`${config.ONE_C_URL}getMyOilCard`,
+    const { id } = msg.from;
+    let command = `?command=getMyOilCard&id_telegram=` + id
+    console.log(config.ONE_C_URL + command)
+    await axios.post(`${config.ONE_C_URL + command}`, {},
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -228,20 +222,18 @@ exports.getMyOilCard = async (msg) => {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id
             }
         },
     )
         .then((res) => {
+            console.log(res)
             let myoilcard = res.data.MyOilCard
             console.log(myoilcard)
             let btns = []
             if (myoilcard.length > 0) {
                 myTasks.setUserType(id, 'myoilcard')
                 for (let i = 0; i < myoilcard.length; i++) {
-                    btns.push([{text: myoilcard[i].Представление, callback_data: myoilcard[i].GUID}])
+                    btns.push([{ text: myoilcard[i].Представление, callback_data: myoilcard[i].guid }])
                 }
                 bot.sendMessage(id, maps, {
                     reply_markup: {
@@ -258,7 +250,7 @@ exports.getMyOilCard = async (msg) => {
                 }, 100)
             } else {
                 myTasks.setUserType(id, '')
-                bot.sendMessage(id, chosemaps, {
+                bot.sendMessage(id, 'У вас отсуствует карточка, для получения можете обратится к <a href="tg://user?id=741444466">ко мне</a> ', { parse_mode: 'HTML' }, {
                     reply_markup: {
                         resize_keyboard: true,
                         keyboard: autopark
@@ -298,7 +290,7 @@ exports.getTypeOil = async (id, guid) => {
                 }
                 myTasks.setClientData(id, data)
                 for (let i = 0; i < oiltype.length; i++) {
-                    btns.push([{text: oiltype[i].Представление, callback_data: oiltype[i].GUID}])
+                    btns.push([{ text: oiltype[i].Представление, callback_data: oiltype[i].guid }])
                 }
                 bot.sendMessage(id, chosegsm, {
                     reply_markup: {
@@ -338,7 +330,7 @@ exports.getOilCount = (id, guid) => {
 }
 exports.getDesc = msg => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
+    const { id } = msg.from;
     const oilcount = msg.text
     let guid_oilCard = myTasks.getClientData()[id].guid_oilCard
     let guid_typeOil = myTasks.getClientData()[id].guid_typeOil
@@ -354,7 +346,7 @@ exports.getDesc = msg => {
 
 exports.getOilDate = msg => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
+    const { id } = msg.from;
     const description = msg.text
     let guid_oilCard = myTasks.getClientData()[id].guid_oilCard
     let guid_typeOil = myTasks.getClientData()[id].guid_typeOil
@@ -377,20 +369,20 @@ exports.getOilDate = msg => {
         hour12: false,
         timeZone: 'UTC'
     })
-    let [{value: month}, , {value: day}, , {value: year}] = dateTimeFormat.formatToParts(nowdate)
+    let [{ value: month }, , { value: day }, , { value: year }] = dateTimeFormat.formatToParts(nowdate)
 
     let today = `${year}${month}${day}`
-    let tomorrow = `${year}${month}${parseInt(day)+1}`
-    let afer2day = `${year}${month}${parseInt(day)+2}`
-    let afer3day = `${year}${month}${parseInt(day)+3}`
+    let tomorrow = `${year}${month}${parseInt(day) + 1}`
+    let afer2day = `${year}${month}${parseInt(day) + 2}`
+    let afer3day = `${year}${month}${parseInt(day) + 3}`
     bot.sendMessage(id, mustdate, {
         reply_markup: {
             resize_keyboard: true,
             inline_keyboard: [
-                [{text: 'Сегодня', callback_data: `setdateoil|${today}`}],
-                [{text: 'Завтра', callback_data: `setdateoil|${tomorrow}`}],
-                [{text: 'Через 2 дня', callback_data: `setdateoil|${afer2day}`}],
-                [{text: 'Через 3 дня', callback_data: `setdateoil|${afer3day}`}]
+                [{ text: 'Сегодня', callback_data: `setdateoil|${today}` }],
+                [{ text: 'Завтра', callback_data: `setdateoil|${tomorrow}` }],
+                [{ text: 'Через 2 дня', callback_data: `setdateoil|${afer2day}` }],
+                [{ text: 'Через 3 дня', callback_data: `setdateoil|${afer3day}` }]
             ]
         }
     })
@@ -435,13 +427,12 @@ exports.isShure = (id, date) => {
         }
     });
 }
-
 exports.getCustomDate = (msg) => {
     bot.on("polling_error", console.log);
-    const {id} = msg.from;
+    const { id } = msg.from;
     let sendeddate = msg.text.split('.')
-    if(sendeddate.length === 3){
-        if(sendeddate[0].length === 2 && parseInt(sendeddate[0]) < 32  && sendeddate[1].length === 2 && parseInt(sendeddate[1]) < 13 && sendeddate[2].length === 4 && parseInt(sendeddate[2]) > 2020){
+    if (sendeddate.length === 3) {
+        if (sendeddate[0].length === 2 && parseInt(sendeddate[0]) < 32 && sendeddate[1].length === 2 && parseInt(sendeddate[1]) < 13 && sendeddate[2].length === 4 && parseInt(sendeddate[2]) > 2020) {
             let date = `${sendeddate[2]}${sendeddate[1]}${sendeddate[0]}`
             let guid_oilCard = myTasks.getClientData()[id].guid_oilCard
             let guid_typeOil = myTasks.getClientData()[id].guid_typeOil
@@ -462,16 +453,15 @@ exports.getCustomDate = (msg) => {
                     keyboard: isshure
                 }
             });
-        }else{
+        } else {
             bot.sendMessage(id, errordate)
         }
-    }else{
+    } else {
         bot.sendMessage(id, errordate)
     }
 }
-
 exports.setNeedOil = async (msg) => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     let guid_oilCard = myTasks.getClientData()[id].guid_oilCard
     let guid_typeOil = myTasks.getClientData()[id].guid_typeOil
     let count = myTasks.getClientData()[id].count
@@ -514,7 +504,7 @@ exports.setNeedOil = async (msg) => {
         })
 }
 exports.getDoc = msg => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     bot.sendMessage(id, chosetemplate, {
         reply_markup: {
             resize_keyboard: true,
@@ -523,14 +513,14 @@ exports.getDoc = msg => {
     })
 }
 exports.getAktAuto = msg => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     bot.sendDocument(id, encodeURI(`${config.BASE_URL}docs/akty_na_transport.pdf`))
 }
 exports.getAktCard = msg => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     bot.sendDocument(id, encodeURI(`${config.BASE_URL}docs/akty_na_toplivnye_karty.pdf`))
 }
 exports.getList = msg => {
-    const {id} = msg.from;
+    const { id } = msg.from;
     bot.sendDocument(id, encodeURI(`${config.BASE_URL}docs/putevoi_list.pdf`))
 }

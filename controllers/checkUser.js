@@ -2,11 +2,11 @@ const User = require('../models/user');
 const bot = require('../util/telegrambot').bots;
 const axios = require('axios');
 const config = require('../util/config');
-const { checkuser } = require('../controllers/menu');
-const { expectation, entercode, entername, alertcode, errordata } = require('./getmessage');
+const {checkuser} = require('../controllers/menu');
+const { expectation,entercode,entername,alertcode,errordata } = require('./getmessage');
 
 exports.getCheck = (msg) => {
-    const { id } = msg.from;
+    const {id} = msg.from;
     User.setUserChecked(id, 1);
     bot.sendMessage(id, entercode, {
         reply_markup: {
@@ -15,7 +15,7 @@ exports.getCheck = (msg) => {
     })
 };
 exports.deleteFio = (msg) => {
-    const { id } = msg.from;
+    const {id} = msg.from;
     User.setUserOnecnameNull(id).then(() => {
         bot.sendMessage(id, entername, {
             reply_markup: {
@@ -26,25 +26,22 @@ exports.deleteFio = (msg) => {
     });
 };
 exports.anotherCode = (msg) => {
-    const { id } = msg.from;
+    const {id} = msg.from;
     console.log(id)
     User.getUserOnecname(id)
         .then(([rows]) => {
             async function checkFrom1c() {
                 bot.sendMessage(id, expectation);
-                await axios.post(`${config.ONE_C_URL}sendCode`, {
-                    "user": {
-                        "fio": rows[0].onec_name,
-                        "id_telegram": id,
-                        "delete": false
-                    }
+                let command = `?command=sendCode&id_telegram=` + id
+                await axios.post(`${config.ONE_C_URL + command}`, {
+                        "fio": rows[0].onec_name                   
                 }, {
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     auth: {
                         username: 'telegrambot',
-                        password: 'vO3kygym'
+                        password: 'Aa123456'
                     }
                 })
                     .then(res => {

@@ -12,6 +12,8 @@ const addNewTask = require('../controllers/addNewTask')
 const uploads = require('./uploads')
 const myTasks = require('../util/myTasks')
 const {chosefile} = require('../controllers/getmessage')
+const { personnelandhelp } = require('../controllers/menu')
+//const params = require('../util/parametrs')
 let isContact = false
 let idUser = null
 let messgeText = ''
@@ -23,6 +25,7 @@ bot.on('message', (msg) => {
   const { id } = msg.chat
   if(msg.text === 'Ещё раз загрузить ?'){
     clientbyname.putFile(msg)
+
   }
   if (msg.text === '/start' || msg.text === '/main') {
     bot.sendMessage(id, `Приветствую, ${msg.from.first_name}`).then(() => {
@@ -30,24 +33,24 @@ bot.on('message', (msg) => {
     })
     return false
   }
-  // if (msg.text === 'На главную') {
-  //   bot.sendMessage(id, 'Выберите раздел в меню', {
-  //     reply_markup: {
-  //         resize_keyboard: true,
-  //         keyboard: [
-  //             ['Мои задачи'],
-  //             ['Работа с клиентом'],
-  //             ['Номенклатура и остатки'],
-  //             ['Автопарк'],
-  //             ['Поставить задачу'],
-  //             ['Кадры и справки'],
-  //             ['На главную'],
-  //             ['Выйти из приложения']
-  //         ]
-  //     }
-  // });
-  // }
+  if (msg.text === 'На главную') {
+    bot.sendMessage(id, 'Выберите раздел в меню', {
+      reply_markup: {
+          resize_keyboard: true,
+          keyboard: [
+              ['Мои задачи'],
+              ['Работа с клиентом'],
+              ['Номенклатура и остатки'],
+              ['Автопарк'],
+              ['Поставить задачу'],
+              ['Кадры и справки'],
+              ['На главную'],
+              ['Выйти из приложения']
+          ]
+      }
+  });
 
+  }
   if (
     myTasks.getUserType()[id.toString()] === 'nextstep' &&
     msg.text !== 'Далее'
@@ -59,6 +62,22 @@ bot.on('message', (msg) => {
     msg.text !== '/start'
   ) {
     addNewTask.findRole(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'GetYearsWorker' && msg.text !== '/start') {
+    personelHelp.setMoney(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'GetReportSopManufacture' && msg.text !== '/start') {
+    nomenclature.getSearchNameManufacture(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'GetMoneyWorker' && msg.text !== '/start') {
+    personelHelp.setComment(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'GetCommentworker' && msg.text !== '/start') {
+    personelHelp.sendGetMoney(msg)
     return false
   }
   if (myTasks.getUserType()[id.toString()] === 'fio' && msg.text !== '/start') {
@@ -136,12 +155,22 @@ bot.on('message', (msg) => {
     nomenclature.getShippingByNumber(msg)
     return false
   }
-  
   if (myTasks.getUserType()[id.toString()] === 'setOdometAuto' && msg.text !== '/start') {
     autopark.setOdometAuto(msg)
     return false
   }
-
+  if (myTasks.getUserType()[id.toString()] === 'setDocAuto' && msg.text !== '/start') {
+    autopark.setDocAuto(msg)
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'autoFiles' && msg.text !== '/start') {
+    clientbyname.autoFiles(msg) 
+    return false
+  }
+  if (myTasks.getUserType()[id.toString()] === 'acceptfiles' && msg.text !== '/start') {
+    getFile.acceptfiles(msg) 
+    return false
+  }
   if (myTasks.getUserType()[id.toString()] === 'oilcount' && msg.text !== '/start') {
     autopark.getDesc(msg)
     return false
@@ -170,11 +199,20 @@ bot.on('message', (msg) => {
   if (msg.text === 'Подтвердить') {
     checkUsreController.getCheck(msg)
   }else if (msg.text === 'Кадры и справки') {
-    personelHelp.getWorkHelp(msg)
+    personelHelp.getWorkHelp(msg) 
+  }else if (msg.text === 'Отмена') {
+    myTasks.setUserType(id, ``);
+    autopark.mainQuery(msg)
   }else if(msg.text === 'Подтвердить и закрепить файл/файлы'){
     getFile.FileSends(msg)
+  }else if(msg.text === 'Прикрепить показания Одометра'){
+    autopark.setOdometrAutoStr(msg)
+  }else if(msg.text === 'Зафиксировать показания'){
+    clientbyname.autoFiles(msg) 
   }else if (msg.text === 'Ближайшие командировки') {
     personelHelp.getVisit(msg)
+  }else if (msg.text === 'Да, продолжаем') {
+      autopark.setDocAuto(msg) 
   }else if (msg.text === 'Узнать сумму в подотчете') {
     personelHelp.getSumReport(msg)
   }else if (msg.text === 'Справка с места работы') {
@@ -197,6 +235,8 @@ bot.on('message', (msg) => {
     clientbyname.findClientByName(msg)
   }else if (msg.text === 'Прикрепить файл') {
     clientbyname.putFile(msg)
+  }else if (msg.text === 'Send photo') {
+    clientbyname.autoFiles(msg)
   }else if (msg.text === 'Получить файл') {
     clientbyname.getFile(msg)
   }else if (msg.text === 'БИН/ИИН') {
@@ -219,20 +259,28 @@ bot.on('message', (msg) => {
     autopark.getAktCard(msg)
   }else if (msg.text === 'Путевой лист') {
     autopark.getList(msg)
-  }else if (msg.text === 'Приложить фото') {
+  } else if (msg.text === 'Приложить фото') {
     clientbyname.putFile(msg)
   }else if (msg.text === 'Мои авто') {
     autopark.getMyAuto(msg)
-  }else if (msg.text === 'Пропишите Одометр Авто') {
+  }else if (msg.text === 'Внести состояние ТС') {
     autopark.getOdometerAuto(msg)
   }else if (msg.text === 'Создать Заявку на ГСМ') {
     autopark.getMyOilCard(msg)
+  }else if(msg.text === 'Получить отчет SOP по номенклатура') {
+    nomenclature.getReportSopProduct(msg)
+  }else if(msg.text === 'Поиск по производителю'){
+    nomenclature.getManufacture(msg)
   }else if (msg.text === 'Шаблоны документов') {
     autopark.getDoc(msg)
+  }else if (msg.text === 'Отчет по всем производителям') {
+    nomenclature.getPlanAllSOPByProduct(msg)
   }else if (msg.text === 'Номенклатура и остатки') {
     nomenclature.mainNomenclature(msg)
   }else if (msg.text === 'Найти перевозку по номеру') {
     nomenclature.findShippingByNumber(msg)
+  }else if (msg.text === 'Поиск по наименованию номенклатуры') {
+    nomenclature.findProductByName(msg)
   }else if (msg.text === 'Поиск по наименованию') {
     nomenclature.findProductByName(msg)
   }else if (msg.text === 'Поиск по категории') {
@@ -248,9 +296,16 @@ bot.on('message', (msg) => {
   }else if (msg.text === 'Сертификаты товара') {
     nomenclature.getTypeCertByProduc(msg)
   }else if (msg.text === 'Отправить') {
-    addNewTask.sendNewTask(msg.chat)
+    addNewTask.sendNewTask(msg.chat.id)
   }else if (msg.text === 'Отправить заявку') {
     autopark.setNeedOil(msg)
+  }else if (msg.text === 'Подать заявку на Аванс') {
+    personelHelp.setGetMoneyWorker(msg)
+  }else if (msg.text === 'Заново подать заявку на Аванс') {
+    personelHelp.setGetMoneyWorker(msg)
+  }else if(msg.text === 'Прикрепить показатели'){
+    getFile.acceptfiles(msg);
+    console.log('Accept');
   }else if (msg.text === 'Отменить') {
     addNewTask.notSendNewTask(msg.chat.id)
   } else if (msg.text === 'Поставить задачу') {
@@ -261,6 +316,8 @@ bot.on('message', (msg) => {
     checkUsreController.anotherCode(msg)
   } else if (msg.text === 'Выйти из приложения') {
     userController.logOut(msg)
+  }else if (msg.text === 'Получить отчет SOP') {
+    nomenclature.ReportSop(msg)
   } else if (taskarr.length > 0 && taskarr.includes(msg.text)) {
     for (let i = 0; i < tasks.length; i++) {
       if (msg.text === tasks[i].task_type) {
@@ -327,6 +384,10 @@ bot.on('callback_query', (query) => {
   }
   if (myTasks.getUserType()[query.message.chat.id.toString()] === 'getStocksAll') {
     nomenclature.getStockByStock(query.message.chat.id, query.data)
+    return false
+  }
+  if (myTasks.getUserType()[query.message.chat.id.toString()] === 'getManufactureStocks') {
+    nomenclature.getReportSopManufacture(query.message.chat.id, query.data)
     return false
   }
   if (myTasks.getUserType()[query.message.chat.id.toString()] === 'getCategory') {
@@ -396,10 +457,8 @@ bot.on('callback_query', (query) => {
     getTasksController.setTaskResults(query.message.chat.id, query.data)
   } 
   else if (query.data === 'getcard') {
-    console.log(myTasks.getTaskResult()[query.message.chat.id].includes(query.data))
-    getTasksController.getPdfFile(
-      query.message.chat.id,
-      myTasks.getTasksData()[query.message.chat.id].task,
-    )
+    console.log(query.message.chat.id)
+    console.log(myTasks.getTasksData()[query.message.chat.id])
+    getTasksController.getPdfFile(query.message.chat.id, myTasks.getTasksData()[query.message.chat.id])
   }
 })

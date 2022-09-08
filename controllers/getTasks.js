@@ -6,8 +6,8 @@ const User = require('../models/user')
 const stripHtml = require('string-strip-html')
 const cb_data = []
 const fs = require('fs')
-const { gettask } = require('../controllers/menu');
-const { expectation, chosetask, notfoundtask, notfoundpoint, succesonec, getcard, leavecomment } = require('./getmessage');
+const {gettask} = require('../controllers/menu');
+const { expectation,chosetask,notfoundtask,notfoundpoint,succesonec,getcard,leavecomment} = require('./getmessage')
 
 exports.getTasks = (msg) => {
   const { id } = msg.from
@@ -22,25 +22,19 @@ exports.getTasks = (msg) => {
       bot.sendMessage(id, expectation)
     })
   async function get(id) {
+    let command = '?command=getTasks&id_telegram='+id;
     await axios
       .post(
-        `${config.ONE_C_URL}getTasks`,
+        `${config.ONE_C_URL}` + command,{},
         {
-          user: {
-            id_telegram: id,
-          },
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          auth: {
-            username: config.ONE_C_AUTH_LOGIN,
-            password: config.ONE_C_AUTH_PASSWORD,
-          },
-        },
+            auth: {
+                username: config.ONE_C_AUTH_LOGIN,
+                password: config.ONE_C_AUTH_PASSWORD,
+            }
+        }
       )
       .then((res) => {
+        console.log(res)
         if (res.data.Tasks) {
           if (res.data.Tasks.length > 0) {
             let buttons = []
@@ -69,8 +63,9 @@ exports.getTasks = (msg) => {
         }
       })
       .catch((e) => {
+        bot.on("polling_error", console.log);
         console.log(e.message)
-        console.log('error')
+        console.log(e)
         bot.sendMessage(id, expectation)
       })
   }
@@ -81,14 +76,12 @@ exports.getTask = (msg, task_type) => {
   const text = msg.text
   bot.sendMessage(id, expectation)
   async function gettask(id, task_type, text) {
+    let command = '?command=getTasksByType&id_telegram=' + id;
     await axios
       .post(
-        `${config.ONE_C_URL}getTasksByType`,
+        `${config.ONE_C_URL}` + command,
         {
-          user: {
-            id_telegram: id,
             task_type: task_type,
-          },
         },
         {
           headers: {
@@ -108,13 +101,13 @@ exports.getTask = (msg, task_type) => {
           let user = []
           user.push({
             text: tsks[i].Представление,
-            callback_data: tsks[i].GUID,
+            callback_data: tsks[i].guid,
           })
           users.push(user)
           taskinfo.push({
             prefics: tsks[i].prefics,
-            callback_data: tsks[i].GUID,
-            nameObject: tsks[i].ИмяОбъекта,
+            callback_data: tsks[i].guid,
+            nameObject: tsks[i].nameObject,
           })
         }
         myTasks.setTaskType(id, { task_type: task_type, text: text })
@@ -147,15 +140,14 @@ exports.getTaskByGuid = (id, guid) => {
     for (i = 0; i < alltasks.length; i++) {
       if (alltasks[i].callback_data === guid) {
         async function getGuid(guid, nameObject, prefix) {
+          let command = '?command=getTaskByGuid&id_telegram='+ id;
           await axios
             .post(
-              `${config.ONE_C_URL}getTaskByGuid`,
+              `${config.ONE_C_URL}`+ command,
               {
-                task: {
                   guid: guid,
                   nameObject: nameObject,
                   prefics: prefix,
-                },
               },
               {
                 headers: {
@@ -169,16 +161,16 @@ exports.getTaskByGuid = (id, guid) => {
             )
             .then((res) => {
               console.log(res.data)
+              console.log('res')
               if (res.data.get_file)
-                getPdf(res.data.GUID, res.data.ИмяОбъекта, res.data.prefics)
+                getPdf(res.data.guid, res.data.nameObject, res.data.prefics)
               let variants = res.data.ВариантыВыполнения
               let taskdata = {
-                task: {
-                  guid: res.data.GUID,
-                  nameObject: res.data.ИмяОбъекта,
+                  guid: res.data.guid,
+                  nameObject: res.data.nameObject,
                   prefics: res.data.prefics,
-                },
               }
+              console.log(taskdata)
               myTasks.setTasksData(id, taskdata)
               let fio = stripHtml(res.data.Представление)
               fio = fio.replace(/[<>]/gi, "'")
@@ -196,9 +188,7 @@ exports.getTaskByGuid = (id, guid) => {
                     '*' +
                     variants[i].нуженКомментарий +
                     '|' +
-                    variants[i].Индекс +
-                    '|' +
-                    variants[i].НомерВерсии
+                    variants[i].Индекс 
                   cb_data.push(variant)
                   btns.push({
                     text: variants[i].ВариантСиноним,
@@ -209,8 +199,8 @@ exports.getTaskByGuid = (id, guid) => {
                   })
                   variantsName.push(
                     variants[i].ВариантСиноним +
-                    '*' +
-                    variants[i].нуженКомментарий,
+                      '*' +
+                      variants[i].нуженКомментарий,
                   )
                 }
               } else {
@@ -218,6 +208,7 @@ exports.getTaskByGuid = (id, guid) => {
               }
               let keyboard = []
               keyboard.push(btns)
+              console.log(res.data.get_file)
               if (res.data.get_file)
                 keyboard.push([
                   { text: getcard, callback_data: 'getcard' },
@@ -253,11 +244,11 @@ exports.getTaskByGuid = (id, guid) => {
 
   const Path = require('path')
   async function getPdf(guid, nameObject, prefics) {
-
+    console.log('getPDF1')
     await axios
       .get(
         encodeURI(
-          `${config.ONE_C_URL}get_file?guid=${guid}&nameObject=${nameObject}&prefics=${prefics}`,
+          `http://192.168.1.10/erpkz/hs/erp_api/get_file?prefics=${prefics}&nameObject=${nameObject}&guid=${guid}`,
         ),
         {
           responseType: 'stream',
@@ -268,6 +259,7 @@ exports.getTaskByGuid = (id, guid) => {
         },
       )
       .then((response) => {
+        console.log(response)
         myTasks.setExt(id, response.headers.file_type)
         const path = Path.resolve(
           __dirname,
@@ -275,26 +267,35 @@ exports.getTaskByGuid = (id, guid) => {
           `${guid}.${response.headers.file_type}`,
         )
         const writer = fs.createWriteStream(path)
+        writer.on("error", function(error) {
+          var errortext = `<a href='https://wa.me/+77066040493?text=${error.toString()}'>Нажмите на ссылку что бы отправить ошибку мне what's app </a>, Если возникла ошибка напишите мне Telegram @dauren_o либо в сделайте скрин сообщение и отправьте мне в Telegram - @dauren_o`
+          bot.sendMessage(id, errortext, {parse_mode:'HTML'})
+        });
+        writer.on("finish", function() {
+         bot.sendMessage(id, 'Файл загружен можете скачать карточку', {parse_mode:'HTML'})
+        });
         response.data.pipe(writer)
-      })
+        })
+        
       .catch((e) => {
         console.log('error', e.message)
-        bot.sendMessage(id, expectation)
+        bot.sendMessage(id, 'Если возникла ошибка напишите мне Telegram @dauren_o, what"s app 87066040493')
       })
   }
 }
 
 exports.getPdfFile = (id, data) => {
-  console.log(data.guid);
-  console.log(encodeURI(`${config.BASE_URL}pdf/${data.guid}.pdf`));
+  bot.on("polling_error", console.log);
+  let ext = myTasks.getExt()[id.toString()]
+   // bot.sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.pdf`)).then((res) => {
+  // bot
+  //   .sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
   bot
-    .sendDocument(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.pdf`))
-    .then((res) => {
-      console.log(res)
-    }).catch((e)=>{
-      console.log(e.message)
-      bot.sendMessage(741444466, e.message);
-    })
+  .sendMessage(id, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
+  bot
+  .sendDocument(741444466, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
+  bot
+  .sendMessage(741444466, encodeURI(`${config.BASE_URL}pdf/${data.guid}.${ext}`))
 }
 
 exports.setTaskResults = (id, data, text = '') => {
@@ -308,30 +309,35 @@ exports.setTaskResults = (id, data, text = '') => {
   const cbd = cbdata[0]
   const selfName = myTasks.getSelf()[id][1]
   const taskData = myTasks.getTasksData()[id]
+  console.log(taskData)
   if (text === '') {
-    taskData.task.taskResult = {
-      Индекс: parseInt(cbd[2]),
-      ВариантИмя: cbd[1],
-      ВариантСиноним: cbd[1].split('*')[0],
-      НомерВерсии: parseInt(cbd[3]),
-    }
-  } else if (text === 'На главную') {
-    return;
-  } else {
-    taskData.task.taskResult = {
+    taskData.taskResult = {
       Индекс: parseInt(cbd[2]),
       ВариантИмя: cbd[0],
+      ВариантСиноним: cbd[1].split('*')[0]
+    }
+  }else {
+    taskData.taskResult = {
+      Индекс: parseInt(cbd[2]),
       ВариантСиноним: cbd[1].split('*')[0],
-      НомерВерсии: parseInt(cbd[3]),
+      ВариантИмя: cbd[0],
       Комментарий: text,
     }
+    // {
+    //   taskData.task.taskResult = {
+    //     Индекс: parseInt(cbd[2]),
+    //     ВариантИмя: cbd[0],
+    //     ВариантСиноним: cbd[1].split('*')[0],
+    //     НомерВерсии: parseInt(cbd[3]),
+    //     Комментарий: text,
+    //   }
     myTasks.setCbdata(id, ['Нет|Нет*0|0|1', 'Да|Да*0|1|1'])
   }
-  console.log(taskData.task.taskResult);
-  taskData.task.user = {
-    id_telegram: id,
-    fio: selfName,
-  }
+
+  // taskData.task.user = {
+  //   id_telegram: id,
+  //   fio: selfName,
+  // }
   const ifComment = data.split('*')[1]
   if (ifComment === '1') {
     bot.sendMessage(id, leavecomment, {
@@ -339,7 +345,7 @@ exports.setTaskResults = (id, data, text = '') => {
         remove_keyboard: true,
       },
     })
-  } else {
+  } else{
     bot.sendMessage(id, expectation, {
       reply_markup: {
         resize_keyboard: true,
@@ -349,8 +355,9 @@ exports.setTaskResults = (id, data, text = '') => {
     Result()
   }
   async function Result() {
+    let command = `?command=setResultTask&id_telegram=`+ id
     await axios
-      .post(`${config.ONE_C_URL}setResultTask`, taskData, {
+      .post(`${config.ONE_C_URL + command}`,  taskData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -362,14 +369,13 @@ exports.setTaskResults = (id, data, text = '') => {
       .then((res) => {
         bot.sendMessage(id, res.data.message)
         async function gettask(id, task_type, text) {
+          let command = `?command=getTasksByType&id_telegram=` + id
           await axios
             .post(
-              `${config.ONE_C_URL}getTasksByType`,
+              `${config.ONE_C_URL + command}`,
               {
-                user: {
-                  id_telegram: id,
+              
                   task_type: task_type,
-                },
               },
               {
                 headers: {
@@ -389,12 +395,12 @@ exports.setTaskResults = (id, data, text = '') => {
                 let user = []
                 user.push({
                   text: tsks[i].Представление,
-                  callback_data: tsks[i].GUID,
+                  callback_data: tsks[i].guid,
                 })
                 users.push(user)
                 taskinfo.push({
                   prefics: tsks[i].prefics,
-                  callback_data: tsks[i].GUID,
+                  callback_data: tsks[i].guid,
                   nameObject: tsks[i].ИмяОбъекта,
                 })
               }

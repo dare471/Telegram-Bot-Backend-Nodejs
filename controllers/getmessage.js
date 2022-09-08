@@ -1,5 +1,5 @@
 module.exports  =  {
-  "selectdocument":'Выберите документ',
+  selectdocument:'Выберите документ',
   expectation:'Ожидание...',
   continued:'Продолжить',
   сhoosesearch:'Выберите вариант поиска',
@@ -32,7 +32,7 @@ module.exports  =  {
   uauth:'Вы авторизованы', 
   choseauto:'Выбор авто',
   chosenumber:'Введите номер',
-  enterodometr:'Укажите км одометра',
+  enterodometr:'Выберите действие касательно раздела Одометр',
   maps:'Карты',
   chosemaps:'Выберите карту',
   chosegsm:'Выберите тип ГСМ',
@@ -68,6 +68,7 @@ module.exports  =  {
   continuedtol:'Для продолжения поиска нажмите "Смотреть далее"',
   fwhatwarehouse:'По каким складам нужны остатки?',
   chosewarehouse:'Выберите склад',
+  chosemanufacture: 'Выберите поставщика',
   entertypecert:'Выберите тип сертификата',
   entercert:'Выберите сертификат',
 }

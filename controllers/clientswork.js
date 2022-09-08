@@ -39,7 +39,10 @@ exports.findClientByBin = (msg) => {
 exports.getClientByBin = async (msg) => {
     const bin = msg.text
     const {id} = msg.from;
-    await axios.get(`${config.ONE_C_URL}getClientByBIN`,
+    let command = `?command=getClientByBIN&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+        bin: bin
+    },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -47,19 +50,16 @@ exports.getClientByBin = async (msg) => {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id,
-                bin: bin
             }
         },
     )
         .then((res) => {
+            console.log(res)
             let btns = []
             for (let i = 0; i < res.data.Clients.length; i++) {
-                btns.push([{text: res.data.Clients[i].Представление, callback_data: res.data.Clients[i].GUID}])
+                btns.push([{text: res.data.Clients[i].Представление, callback_data: res.data.Clients[i].guid}])
             }
-            myTasks.setUserType(id, selectedclient)
+            myTasks.setUserType(id, `selectedclient`)
             bot.sendMessage(id, choseclient, {
                 reply_markup: {
                     resize_keyboard: true,
@@ -74,7 +74,10 @@ exports.getClientByBin = async (msg) => {
 }
 
 exports.getClientByGuid = async (id, guid) => {
-    await axios.get(`${config.ONE_C_URL}getClientByGuid`,
+    let command = `?command=getClientByGuid&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`,{
+        guid: guid
+    },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -83,10 +86,7 @@ exports.getClientByGuid = async (id, guid) => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
+            
         },
     )
         .then((res) => {
@@ -116,7 +116,10 @@ exports.getContractByClient = async (msg, type) => {
     if (type === 0) {
         const {id} = msg.from;
         let guid = myTasks.getUserType()[id]
-        await axios.get(`${config.ONE_C_URL}getContractByClient`,
+        let command = `?command=getContractByClient&id_telegram=` + id
+        await axios.post(`${config.ONE_C_URL + command}`,{
+            guid: guid
+        },
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -124,10 +127,6 @@ exports.getContractByClient = async (msg, type) => {
                 auth: {
                     username: config.ONE_C_AUTH_LOGIN,
                     password: config.ONE_C_AUTH_PASSWORD,
-                },
-                params: {
-                    id_telegram: id,
-                    guid: guid
                 }
             },
         )
@@ -186,17 +185,16 @@ exports.getSverkaByClient = async (msg, type) => {
     const {id} = msg.from;
     let guid = myTasks.getUserType()[id]
     console.log(myTasks.getUserType()[id])
-    await axios.get(`${config.ONE_C_URL}getSverkaByClient`,
+    let command = `?command=getSverkaByClient&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`,  {
+        guid: guid
+    },
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
         },
     )
         .then(response => {
@@ -237,7 +235,10 @@ exports.getSverkaByClient = async (msg, type) => {
 exports.getKompraByClient = async (msg, type) => {
     const {id} = msg.from;
     let guid = myTasks.getUserType()[id]
-    await axios.get(`${config.ONE_C_URL}getKompraByClient`,
+    let command = `?command=getKompraByClient&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+        guid: guid
+    },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -245,10 +246,6 @@ exports.getKompraByClient = async (msg, type) => {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id,
-                guid: guid
             }
         },
     )
@@ -274,16 +271,15 @@ exports.getKompraByClient = async (msg, type) => {
         })
 }
 exports.getKompraPDFByGuid = async (guid, id) => {
-    await axios.get(`${config.ONE_C_URL}getKompraPDFByGuid`,
+    let command = `?command=getKompraPDFByGuid&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`,{
+        guid: guid
+    },
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id,
-                guid: guid
             }
         }
     )
@@ -324,7 +320,10 @@ exports.getKompraPDFByGuid = async (guid, id) => {
         })
 }
 exports.getContractByGuid = async (id, guid) => {
-    await axios.get(`${config.ONE_C_URL}getContractByGuid`,
+    let command = `?command=getContractByGuid&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+        guid: guid
+        },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -333,17 +332,13 @@ exports.getContractByGuid = async (id, guid) => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
         },
     )
         .then((res) => {
             myTasks.setUserType(id, guid)
             data = {
                 "nameObject": res.data.ИмяОбъекта,
-                "guid": res.data.GUID,
+                "guid": res.data.guid,
                 "prefics": res.data.prefics
             }
             myTasks.setClientData(id, data)
@@ -419,17 +414,17 @@ exports.getInvoiceByContract = async (msg) => {
     const {id} = msg.from;
     let guid = myTasks.getUserType()[id]
     console.log(myTasks.getUserType())
-    await axios.get(`${config.ONE_C_URL}getInvoiceByContract`,
+    let command = `?command=getInvoiceByContract&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`,{
+        guid: guid
+        },
         {
             responseType: 'stream',
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
+            
         },
     )
         .then((res) => {
@@ -468,7 +463,10 @@ exports.getInvoiceByContract = async (msg) => {
         })
 }
 exports.getSellingByGuid = async (id, guid) => {
-    await axios.get(`${config.ONE_C_URL}getSellingByGuid`,
+    let command = `?command=getSellingByGuid&id_telegram=` + id
+    await axios.post(`${config.ONE_C_URL + command}`, {
+        guid: guid
+    },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -476,17 +474,13 @@ exports.getSellingByGuid = async (id, guid) => {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id,
-                guid: guid
-            }
+            }, 
         },
     )
         .then((res) => {
             data = {
                 "nameObject": res.data.ИмяОбъекта,
-                "guid": res.data.GUID,
+                "guid": res.data.guid,
                 "prefics": res.data.prefics
             }
             myTasks.setUserType(id, null)

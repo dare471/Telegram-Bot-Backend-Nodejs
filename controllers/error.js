@@ -1,9 +1,8 @@
 const fs = require('fs');
 const axios = require('axios');
-const bot = require('../util/telegrambot').bots
 
-exports.errorlog = async er => {
-  
+exports.errorsendgroups = async er => {
+
     if(er.data.message){
       const text =  encodeURI(er.data.message);
         console.log(text)
@@ -34,7 +33,6 @@ exports.errorlog = async er => {
       console.log(error);
     });
 };
-
 exports.errorsend = async er => {
   const text =  encodeURI(er);
   console.log(text)

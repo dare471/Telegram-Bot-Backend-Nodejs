@@ -1,7 +1,6 @@
 let tasks = {};
 let taskwithguid = {};
 let self = {};
-let FileData = {};
 let taskResult = {};
 let taskdata = {};
 let cb_data = {};
@@ -12,6 +11,11 @@ let ext = {}
 let clientdata = {}
 let allproducts = {}
 let counter = {}
+let FileData = {};
+let OdometrSettings = {}
+let GetMoneyWorker = {}
+let getGetSumMoneyWorker = {}
+let getGetCommentMoneyWorker = {}
 let data = {}
 let description = {}
 
@@ -22,6 +26,46 @@ exports.setCounter = (id, type = null) => {
 exports.getCounter = () => {
     return counter
 };
+
+exports.setArrNom = (id, array) => {
+    data[id]=array
+}
+
+exports.getArrNom = () => {
+    return data;
+}
+
+exports.setGetMoneyWorker = (id, type = null) => {
+    GetMoneyWorker[id] = type;
+}
+
+exports.getMoneyWorker = () => {
+    return GetMoneyWorker;
+}
+
+exports.setGetSumMoneyWorker = (id, type = null) => {
+    getGetSumMoneyWorker[id] = type;
+}
+
+exports.getGetSumMoneyWorker = () => {
+   return getGetSumMoneyWorker;
+}
+
+exports.setGetCommentMoneyWorker = (id, type = null) => {
+    getGetCommentMoneyWorker[id] = type;
+}
+
+exports.getGetCommentMoneyWorker = () => {
+   return getGetCommentMoneyWorker;
+}
+
+exports.setOdometrStr = (id, array) => {
+    OdometrSettings[id] = array; 
+};
+
+exports.getOdometrStr = () => {
+   return OdometrSettings; 
+}
 
 exports.setAllproducts = (id, type = null) => {
     allproducts[id] = type;
@@ -100,11 +144,11 @@ exports.getTasksData = () => {
 };
 
 exports.setFileData = (id, array) => {
-    FileData[id] = array;
+    FileData[id] = array; 
 };
 
 exports.getFileData = () => {
-   return FileData;
+    return FileData;
 };
 
 exports.setTaskWithGuid = (id, array) => {
@@ -128,7 +172,11 @@ exports.setTaskResult = (id, array) => {
 };
 
 exports.getTaskResult = () => {
-    return taskResult;
+    return taskResult
+};
+
+exports.getDescriptionDoc = () => {
+    return taskResult
 };
 
 exports.setCbdata = (id, array) => {
