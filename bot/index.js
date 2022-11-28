@@ -158,7 +158,10 @@ bot.on('message', (msg) => {
   if (myTasks.getUserType()[id.toString()] === 'setOdometAuto' && msg.text !== '/start') {
     autopark.setOdometAuto(msg)
     return false
-  }
+  }if (myTasks.getUserType()[id.toString()] === 'setOdometFuelAuto' && msg.text !== '/start') {
+    autopark.getOdometerAuto2(msg)
+    return false
+  } 
   if (myTasks.getUserType()[id.toString()] === 'setDocAuto' && msg.text !== '/start') {
     autopark.setDocAuto(msg)
     return false

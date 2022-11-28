@@ -43,6 +43,7 @@ exports.getClientByName = async (msg) => {
         )
             .then((res) => {
                 let clients = res.data.Clients
+                console.log(clients)
                 if (Array.isArray(clients) && clients.length > 0) {
                     let btns = []
                     for (let i = 0; i < clients.length; i++) {
@@ -76,14 +77,14 @@ exports.autoFiles = (msg) => {
     const { id } = msg.from;
  
     if (msg.photo) {
-        if (msg.photo[0]) {
-            fileid = msg.photo[0].file_id;
+        if (msg.photo[2]) {
+            fileid = msg.photo[2].file_id;
         }
         else if (msg.photo[1]) {
             fileid = msg.photo[1].file_id;
         }
         else {
-            fileid = msg.photo[2].file_id;
+            fileid = msg.photo[0].file_id;
         }
     }
     bot.downloadFile(fileid, './dist/uploads').then(file => {
@@ -207,11 +208,15 @@ exports.findContractByNumber = (msg) => {
 exports.getContractByNumber = async (msg) => {
     const number = msg.text
     const { id } = msg.from;
+    console.log(msg)
     if (number.length < 5) {
         bot.sendMessage(id, mustsymbols)
     } else {
         myTasks.setUserType(id, 'getContractByNumber')
-        await axios.get(`${config.ONE_C_URL}getContractByNumber`,
+        let command = '?command=getContractByNumber&id_telegram=' + id
+        await axios.post(`${config.ONE_C_URL + command}`, {
+                number: number
+            },
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -220,10 +225,7 @@ exports.getContractByNumber = async (msg) => {
                     username: config.ONE_C_AUTH_LOGIN,
                     password: config.ONE_C_AUTH_PASSWORD,
                 },
-                params: {
-                    id_telegram: id,
-                    number: number
-                }
+                
             },
         )
             .then((res) => {
@@ -233,8 +235,9 @@ exports.getContractByNumber = async (msg) => {
                     for (let i = 0; i < contracts.length; i++) {
                         selectcontracts.push([{
                             text: contracts[i].Представление,
-                            callback_data: 'contract|' + contracts[i].GUID
+                            callback_data: 'contract|' + contracts[i].guid
                         }])
+                        console.log(contracts)
                     }
                     bot.sendMessage(id, choseorder, {
                         reply_markup: {
@@ -271,7 +274,10 @@ exports.findSellingByNumber = (msg) => {
 exports.getSellingByNumber = async (msg) => {
     const { id } = msg.from;
     const number = msg.text
-    await axios.get(`${config.ONE_C_URL}getSellingByNumber`,
+    let command = '?command=getSellingByNumber&id_telegram='+id
+    await axios.post(`${config.ONE_C_URL + command}`,{
+            number: number
+        },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -280,10 +286,6 @@ exports.getSellingByNumber = async (msg) => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id,
-                number: number
-            }
         },
     )
         .then((res) => {
@@ -292,7 +294,7 @@ exports.getSellingByNumber = async (msg) => {
             let btns = []
             if (sell.length > 0) {
                 for (let i = 0; i < sell.length; i++) {
-                    btns.push([{ text: sell[i].Представление, callback_data: sell[i].GUID }])
+                    btns.push([{ text: sell[i].Представление, callback_data: sell[i].guid }])
                 }
                 bot.sendMessage(id, chosereal, {
                     reply_markup: {
@@ -320,7 +322,14 @@ exports.getFile = async (msg) => {
     const { id } = msg.from;
     let clientdata = myTasks.getClientData()[id]
     let guid = myTasks.getClientData()[id].guid
-    await axios.get(`${config.ONE_C_URL}get_file`,
+    await axios.get(`${config.ONE_C_URL}get_file`,{
+        task:{
+            prefics: clientdata.prefics,
+            nameObject: clientdata.nameObject,
+            guid: clientdata.guid
+        },
+        id_telegram : id
+    },
         {
             responseType: 'stream',
             auth: {
@@ -328,7 +337,6 @@ exports.getFile = async (msg) => {
                 password: config.ONE_C_AUTH_PASSWORD,
             },
             params: {
-                id_telegram: id,
                 prefics: clientdata.prefics,
                 nameObject: clientdata.nameObject,
                 guid: clientdata.guid

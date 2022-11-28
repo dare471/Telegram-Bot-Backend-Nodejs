@@ -146,6 +146,7 @@ exports.acceptfiles = (msg) => {
         let obj = {
             "guid": guid,
             "odometr": parseInt(odometr),
+            "fuelresult": parseInt(myTasks.getArrNom()[id]),
             "files": filearr
         }
         axios.post(`${config.ONE_C_URL + command}`, obj,
@@ -160,7 +161,7 @@ exports.acceptfiles = (msg) => {
             }
         ).then((res) => {
             console.log(res)
-            bot.sendMessage(id, res.data.message + ' 👍 Фотографии прикреплены ✅', {
+            bot.sendMessage(id, res.data.message, {
                 reply_markup: {
                     resize_keyboard: true,
                     keyboard: [

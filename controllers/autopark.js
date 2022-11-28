@@ -172,7 +172,7 @@ exports.getAutoByGuid = async (id, guid) => {
 
 exports.getOdometerAuto = async (msg) => {
     const { id } = msg.from;
-    myTasks.setUserType(id, 'setOdometAuto')
+    myTasks.setUserType(id, 'setOdometFuelAuto')
     bot.sendMessage(id, 'Введите показатель Одометра 🚗', {
         reply_markup: {
             remove_keyboard: true
@@ -180,10 +180,41 @@ exports.getOdometerAuto = async (msg) => {
     });
 }
 
-exports.setOdometAuto = async (msg) => {
+exports.getOdometerAuto2 = async (msg) => {
     const { id } = msg.from;
     const number = msg.text;
+    if(number==''){
+        bot.sendMessage(id, 'Заполните одометр !!!', {
+            reply_markup: {
+                remove_keyboard: true
+            }
+        });
+        autopark.getOdometerAuto(msg)
+    }
+    else{
     myTasks.setOdometrStr(id, number);
+    myTasks.setUserType(id, 'setOdometAuto')
+    bot.sendMessage(id, 'Остаток топливного бака 🚗', {
+        reply_markup: {
+            remove_keyboard: true
+        }
+    });
+    }
+}
+
+exports.setOdometAuto = async (msg) => {
+    const { id } = msg.from;
+    const fuel = msg.text;
+    if(fuel==''){
+        bot.sendMessage(id, 'Заполните остаток топливного бака !!!', {
+            reply_markup: {
+                remove_keyboard: true
+            }
+        });
+        autopark.getOdometerAuto2(msg)
+    }
+    else{
+    myTasks.setArrNom(id, fuel);
     myTasks.setUserType(id, 'setDocAuto')
     console.log('setDocAuto')
     bot.sendMessage(id, `Продолжаем вносит инф. про ТС?`, {
@@ -194,7 +225,8 @@ exports.setOdometAuto = async (msg) => {
             ],
             resize_keyboard: true
         }
-    })
+    });
+    }
 }
 
 exports.setDocAuto = async (msg) => {
@@ -212,7 +244,7 @@ exports.setDocAuto = async (msg) => {
 exports.getMyOilCard = async (msg) => {
     bot.on("polling_error", console.log);
     const { id } = msg.from;
-    let command = `?command=getMyOilCard&id_telegram=` + id
+    const command = `?command=getMyOilCard&id_telegram=` + id
     console.log(config.ONE_C_URL + command)
     await axios.post(`${config.ONE_C_URL + command}`, {},
         {
@@ -264,9 +296,12 @@ exports.getMyOilCard = async (msg) => {
         })
 }
 exports.getTypeOil = async (id, guid) => {
-
+    bot.sendMessage()
     bot.on("polling_error", console.log);
-    await axios.get(`${config.ONE_C_URL}getTypeOil`,
+    const command = `?command=getTypeOil&id_telegram=` + id; 
+    await axios.post(`${config.ONE_C_URL + command}`, {
+            "guid": guid
+        }, 
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -275,9 +310,6 @@ exports.getTypeOil = async (id, guid) => {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
             },
-            params: {
-                id_telegram: id
-            }
         }
     )
         .then((res) => {
@@ -343,7 +375,6 @@ exports.getDesc = msg => {
     myTasks.setUserType(id, 'oildeck')
     bot.sendMessage(id, entercontent)
 }
-
 exports.getOilDate = msg => {
     bot.on("polling_error", console.log);
     const { id } = msg.from;
@@ -473,10 +504,10 @@ exports.setNeedOil = async (msg) => {
         "count": count,
         "desc": desc,
         "due": oildate,
-        "id_telegram": id
     }
     console.log(data)
-    await axios.post(`${config.ONE_C_URL}setNeedOil`, data,
+
+    await axios.post(`${config.ONE_C_URL+'?command=setNeedOil&id_telegram='+id}`, data,
         {
             headers: {
                 'Content-Type': 'application/json',

@@ -752,14 +752,14 @@ exports.getStockByStock = async (id, guid) => {
             const path = Path.resolve(
                 __dirname,
                 '../dist/pdf',
-                `a${guid}a.${res.headers.file_type}`,
+                `a${guid}d.${res.headers.file_type}`,
             )
             const writer = fs.createWriteStream(path)
             res.data.pipe(writer)
             bot
-                .sendDocument(id, encodeURI(`${config.BASE_URL}pdf/a${guid}a.${res.headers.file_type}`))
+                .sendDocument(id, encodeURI(`${config.BASE_URL}pdf/a${guid}d.${res.headers.file_type}`))
                 .then(() => {
-                    fs.unlink(`dist/pdf/a${guid}a.${res.headers.file_type}`, (err) => {
+                    fs.unlink(`dist/pdf/a${guid}d.${res.headers.file_type}`, (err) => {
                         if (err && err.code == 'ENOENT') {
                             // file doens't exist
                             console.info("File doesn't exist, won't remove it.")

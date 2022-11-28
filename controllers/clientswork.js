@@ -116,6 +116,7 @@ exports.getContractByClient = async (msg, type) => {
     if (type === 0) {
         const {id} = msg.from;
         let guid = myTasks.getUserType()[id]
+        console.log(guid + 'dsadsa')
         let command = `?command=getContractByClient&id_telegram=` + id
         await axios.post(`${config.ONE_C_URL + command}`,{
             guid: guid
@@ -143,6 +144,7 @@ exports.getContractByClient = async (msg, type) => {
                         sezons.push(contracts[i].sezon)
                         btns.push([{text: contracts[i].sezon, callback_data: 'seazons|' + contracts[i].sezon}])
                     }
+                    console.log(btns)
                     bot.sendMessage(id, choseseason, {
                         reply_markup: {
                             resize_keyboard: true,
@@ -166,11 +168,12 @@ exports.getContractByClient = async (msg, type) => {
             })
     } else {
         let arr = myTasks.getClientData()[msg.split('|')[1]]
+        console.log(arr)
         let selectseazon = msg.split('|')[0]
         let selectcontracts = []
         for (let i = 0; i < arr.length; i++) {
             if (arr[i].sezon === selectseazon) {
-                selectcontracts.push([{text: arr[i].Представление, callback_data: 'contract|' + arr[i].GUID}])
+                selectcontracts.push([{text: arr[i].Представление, callback_data: 'contract|' + arr[i].guid}])
             }
         }
         bot.sendMessage(msg.split('|')[1], choseorder, {
@@ -335,6 +338,7 @@ exports.getContractByGuid = async (id, guid) => {
         },
     )
         .then((res) => {
+            console.log(res)
             myTasks.setUserType(id, guid)
             data = {
                 "nameObject": res.data.ИмяОбъекта,
@@ -366,7 +370,10 @@ exports.getContractByGuid = async (id, guid) => {
 exports.getSellingByContract = async (msg) => {
     const {id} = msg.from;
     let guid = myTasks.getUserType()[id]
-    await axios.get(`${config.ONE_C_URL}getSellingByContract`,
+    let command = '?command=getSellingByContract&id_telegram=' + id
+    await axios.post(`${config.ONE_C_URL + command}`,{
+        guid: guid
+        },
         {
             headers: {
                 'Content-Type': 'application/json',
@@ -374,20 +381,17 @@ exports.getSellingByContract = async (msg) => {
             auth: {
                 username: config.ONE_C_AUTH_LOGIN,
                 password: config.ONE_C_AUTH_PASSWORD,
-            },
-            params: {
-                id_telegram: id,
-                guid: guid
             }
         },
     )
         .then((res) => {
             myTasks.setUserType(id, 'sell')
+            console.log(res)
             let sell = res.data.Selling
             let btns = []
             if (sell.length > 0) {
                 for (let i = 0; i < sell.length; i++) {
-                    btns.push([{text: sell[i].Представление, callback_data: sell[i].GUID}])
+                    btns.push([{text: sell[i].Представление, callback_data: sell[i].guid}])
                 }
                 bot.sendMessage(id, chosereal, {
                     reply_markup: {

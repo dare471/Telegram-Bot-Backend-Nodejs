@@ -48,7 +48,9 @@ exports.setMoney = msg =>{
         var day = date_d;
      }
     date_tickets = date_y+''+mounth+''+day;
-    console.log(text.substring(0, 8))
+    console.log(date_tickets + 'U?');
+    console.log(date + '?')
+    console.log(text.substring(0, 8) + '?')
     console.log(text.length)
     let year = text.substring(0, 4)
     let mouth = text.substring(4, 6)
@@ -62,8 +64,8 @@ exports.setMoney = msg =>{
             }
         })   
     }
-    else if (date_tickets < text.substring(0, 8)){
-        myTasks.setGetMoneyWorker(id, date_tickets)
+    if (date_tickets < text.substring(0, 8)){
+        myTasks.setGetMoneyWorker(id, text.substring(0, 8))
         myTasks.setUserType(id, 'GetMoneyWorker')
         bot.sendMessage(id, `Отправьте сумму Аванса`, {
             reply_markup: {
